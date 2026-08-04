@@ -2835,13 +2835,13 @@ function Export() {
       </div>
 
       <div className="card" style={{ marginBottom: 20, maxWidth: 420, borderColor: "var(--danger)" }}>
-        <div className="card-title" style={{ color: "var(--danger)" }}>Area Berbahaya (Hapus Data)</div>
+        <div className="card-title" style={{ color: "var(--danger)" }}>Danger Zone</div>
         <div style={{ fontSize: 13, color: "var(--ink-soft)", marginBottom: 12 }}>
-          Hapus bersih seluruh data transaksi penjualan sekaligus (Berguna untuk mereset riwayat toko setelah fase uji coba). <br/><br/>
-          <strong>Catatan:</strong> Stok produk tidak akan direstore/dikembalikan.
+          Delete transaction data altogether / reset the store data after the software testing phase. <br/><br/>
+          <strong>Note:</strong> Product stocks will not be restored.
         </div>
         <button className="btn btn-danger" onClick={handleWipeTransactions} disabled={wiping}>
-          {wiping ? "Menghapus Transaksi..." : "Hapus Bersih Semua Transaksi"}
+          {wiping ? "Deleting transactions..." : "Deleting All Transations"}
         </button>
       </div>
        
