@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <meta name="theme-color" content="#fff9fb" />
 <title>Kirakira Studio — Store</title>
+<link rel="icon" type="image/png" href="logo.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
@@ -1362,8 +1363,8 @@ function VoidSalePanel() {
         <div className="card-title">{isManager ? "Correction history" : "My requests"}</div>
         {decided.length === 0 ? <div className="empty-state">Nothing here yet.</div> : (
           <div style={{ overflowX: "auto" }}>
-          <table>
-            <thead><tr><th>Receipt</th><th>Requested by</th><th>Reason</th><th>Amount</th><th>Status</th></tr></thead>
+          <table>            
+            <thead><tr><th>Receipt</th><th>Requested by</th><th>Reason</th><th>Amount</th><th>Status</th>{isManager && <th>Action</th>}</tr></thead>
             <tbody>
               {decided.map((c) => (
                 <tr key={c.id}>
@@ -1372,6 +1373,16 @@ function VoidSalePanel() {
                   <td>{c.reason}</td>
                   <td className="mono">{formatIDR(c.total)}</td>
                   <td><span className={`badge ${c.status === "approved" ? "ok" : "out"}`}>{c.status}</span></td>
+                   {/* ADD THIS */}
+                    {isManager && (
+                      <td>
+                        <button className="btn btn-danger btn-sm" onClick={async () => {
+                          if(!confirm("Hapus permanen riwayat void ini?")) return;
+                          try { await deleteDoc(doc(db, "corrections", c.id)); refresh(); }
+                          catch(err) { setToast(err.message); }
+                        }}>Delete</button>
+                      </td>
+                    )}
                 </tr>
               ))}
             </tbody>
@@ -1579,8 +1590,8 @@ function StockAdjustmentPanel() {
           <div className="empty-state">Nothing here yet.</div>
         ) : (
           <div style={{ overflowX: "auto" }}>
-          <table>
-            <thead><tr><th>Product</th><th>Reason</th><th>Qty change</th><th>Value</th><th>Status</th></tr></thead>
+          <table>            
+            <thead><tr><th>Product</th><th>Reason</th><th>Qty change</th><th>Value</th><th>Status</th>{isManager && <th>Action</th>}</tr></thead>
             <tbody>
               {decided.slice(0, 30).map((a) => (
                 <tr key={a.id}>
@@ -1589,6 +1600,16 @@ function StockAdjustmentPanel() {
                   <td className="mono">{a.qtyDelta > 0 ? `+${a.qtyDelta}` : a.qtyDelta}</td>
                   <td className="mono">{formatIDR(a.valuationTotal)}</td>
                   <td><span className={`badge ${a.status === "approved" ? "ok" : "out"}`}>{a.status}</span></td>
+                   {/* ADD THIS */}
+                    {isManager && (
+                      <td>
+                        <button className="btn btn-danger btn-sm" onClick={async () => {
+                          if(!confirm("Hapus permanen riwayat adjustment ini?")) return;
+                          try { await deleteDoc(doc(db, "stockAdjustments", a.id)); refresh(); }
+                          catch(err) { setToast(err.message); }
+                        }}>Delete</button>
+                      </td>
+                    )}
                 </tr>
               ))}
             </tbody>
@@ -1626,12 +1647,18 @@ function Layout({ children }) {
   const items = isManager ? MANAGER_NAV_ITEMS : STAFF_NAV_ITEMS;
 
   return (
-    <div className="app-shell">
+     <div className="app-shell">
       <aside className="sidebar no-print">
-        <div className="sidebar-brand">
-          <h1>Kirakira</h1>
-          <div className="jp">キラキラ Studio</div>
+        {/* --- DESKTOP LOGO --- */}
+        <div className="sidebar-brand" style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <img src="logo.png" alt="Kirakira Logo" style={{ width: 36, height: 36, borderRadius: "50%", objectFit: "cover" }} />
+          <div>
+            <h1>Kirakira</h1>
+            <div className="jp">キラキラ Studio</div>
+          </div>
         </div>
+        {/* -------------------- */}
+         
         <nav className="sidebar-nav">
           {items.map((item) => (
             <NavLink key={item.to} to={item.to} end={item.end}>{item.icon} {item.full}</NavLink>
@@ -1647,10 +1674,13 @@ function Layout({ children }) {
       </aside>
 
       <header className="mobile-topbar no-print">
+        {/* --- MOBILE LOGO --- */}
         <div className="mobile-topbar-brand">
-          <span className="sparkle" />Kirakira
+          <img src="logo.png" alt="Kirakira Logo" style={{ width: 24, height: 24, borderRadius: "50%", objectFit: "cover", marginRight: 8 }} />
+          Kirakira
           <span className={`role-badge ${isManager ? "manager" : "staff"}`} style={{ marginLeft: 8 }}>{isManager ? "Manager" : "Staff"}</span>
         </div>
+        {/* ------------------- */}
         <button className="icon-btn" onClick={logout} aria-label="Sign out">⎋</button>
       </header>
 
@@ -2401,8 +2431,8 @@ function Shift() {
         <div className="card-title">{isManager ? "All shift history" : "My shift history"}</div>
         {history.length === 0 ? <div className="empty-state">No closed shifts yet.</div> : (
           <div style={{ overflowX: "auto" }}>
-          <table>
-            <thead><tr>{isManager && <th>Staff</th>}<th>Opened</th><th>Expected</th><th>Actual</th><th>Variance</th></tr></thead>
+          <table>            
+            <thead><tr>{isManager && <th>Staff</th>}<th>Opened</th><th>Expected</th><th>Actual</th><th>Variance</th>{isManager && <th>Action</th>}</tr></thead>
             <tbody>
               {history.filter((h) => h.status === "closed").map((h) => (
                 <tr key={h.id}>
@@ -2411,6 +2441,16 @@ function Shift() {
                   <td className="mono">{formatIDR(h.expectedCash ?? 0)}</td>
                   <td className="mono">{formatIDR(h.actualCash ?? 0)}</td>
                   <td><span className={`badge ${h.variance === 0 ? "ok" : "out"}`}>{h.variance > 0 ? `+${formatIDR(h.variance)}` : formatIDR(h.variance ?? 0)}</span></td>
+                   {/* ADD THIS */}
+                    {isManager && (
+                      <td>
+                        <button className="btn btn-danger btn-sm" onClick={async () => {
+                          if(!confirm("Hapus permanen riwayat shift ini?")) return;
+                          try { await deleteDoc(doc(db, "shifts", h.id)); refresh(); }
+                          catch(err) { setToast(err.message); }
+                        }}>Delete</button>
+                      </td>
+                    )}                   
                 </tr>
               ))}
             </tbody>
@@ -2872,14 +2912,25 @@ function Export() {
         <div className="card-title">Recent price / stock edits</div>
         {auditLog.length === 0 ? <div className="empty-state">No direct catalogue edits logged yet.</div> : (
           <div style={{ overflowX: "auto" }}>
-          <table>
-            <thead><tr><th>When</th><th>Product</th><th>By</th><th>Before</th><th>After</th></tr></thead>
+          <table>            
+            <thead><tr><th>When</th><th>Product</th><th>By</th><th>Before</th><th>After</th><th>Action</th></tr></thead>
             <tbody>
               {auditLog.map((a) => (
                 <tr key={a.id}>
                   <td>{a.createdAt.toLocaleString("id-ID")}</td><td>{a.productName}</td><td>{a.actorName}</td>
                   <td className="mono">P:{formatIDR(a.before.price ?? 0)} C:{formatIDR(a.before.cost ?? 0)} S:{a.before.stock ?? 0}</td>
                   <td className="mono">P:{formatIDR(a.after.price ?? 0)} C:{formatIDR(a.after.cost ?? 0)} S:{a.after.stock ?? 0}</td>
+                    {/* ADD THIS */}
+                    <td>
+                      <button className="btn btn-danger btn-sm" onClick={async () => {
+                        if(!confirm("Hapus log audit ini?")) return;
+                        try {
+                          await deleteDoc(doc(db, "auditLog", a.id));
+                          setAuditLog(prev => prev.filter(item => item.id !== a.id));
+                          setToast("Log dihapus.");
+                        } catch(err) { setToast(err.message); }
+                      }}>Delete</button>
+                    </td>                   
                 </tr>
               ))}
             </tbody>
