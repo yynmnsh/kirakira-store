@@ -2698,7 +2698,7 @@ function Export() {
    async function handleWipeTransactions() {
     if (!confirm("⚠️ WARNING: This will permanently delete ALL sales transactions. This action cannot be undone. Are you sure?")) return;
     
-    if (prompt("Click 'DELETE' to confirm:") !== "DELETE") {
+    if (prompt("Type 'DELETE' to confirm:") !== "DELETE") {
       setToast("Action cancelled.");
       return;
     }
