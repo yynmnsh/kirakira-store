@@ -1300,6 +1300,8 @@ function VoidSalePanel() {
       {isManager && pending.length > 0 && (
         <div className="card" style={{ marginBottom: 24, borderColor: "var(--amber)" }}>
           <div className="card-title">⏳ Pending approval ({pending.length})</div>
+
+         <div style={{ overflowX: "auto" }}>
           <table>
             <thead><tr><th>Receipt</th><th>Requested by</th><th>Reason</th><th>Amount</th><th></th></tr></thead>
             <tbody>
@@ -1319,6 +1321,7 @@ function VoidSalePanel() {
               ))}
             </tbody>
           </table>
+         </div>
         </div>
       )}
 
@@ -1328,6 +1331,8 @@ function VoidSalePanel() {
         {loading ? <div className="empty-state">Loading recent sales…</div> : filteredSales.length === 0 ? (
           <div className="empty-state">No sales in the last {VOID_LOOKBACK_DAYS} days.</div>
         ) : (
+
+         <div style={{ overflowX: "auto" }}>
           <table>
             <thead><tr><th>Receipt</th><th>Date</th><th>Cashier</th><th>Total</th><th></th></tr></thead>
             <tbody>
@@ -1348,12 +1353,15 @@ function VoidSalePanel() {
               })}
             </tbody>
           </table>
+         </div> 
+       
         )}
       </div>
 
       <div className="card">
         <div className="card-title">{isManager ? "Correction history" : "My requests"}</div>
         {decided.length === 0 ? <div className="empty-state">Nothing here yet.</div> : (
+          <div style={{ overflowX: "auto" }}>
           <table>
             <thead><tr><th>Receipt</th><th>Requested by</th><th>Reason</th><th>Amount</th><th>Status</th></tr></thead>
             <tbody>
@@ -1368,6 +1376,7 @@ function VoidSalePanel() {
               ))}
             </tbody>
           </table>
+         </div>
         )}
       </div>
 
@@ -1478,6 +1487,7 @@ function StockAdjustmentPanel() {
       {isManager && pending.length > 0 && (
         <div className="card" style={{ marginBottom: 24, borderColor: "var(--amber)" }}>
           <div className="card-title">⏳ Pending approval ({pending.length})</div>
+          <div style={{ overflowX: "auto" }}>
           <table>
             <thead><tr><th>Product</th><th>Reason</th><th>Qty change</th><th>Value</th><th>By</th><th></th></tr></thead>
             <tbody>
@@ -1498,6 +1508,7 @@ function StockAdjustmentPanel() {
               ))}
             </tbody>
           </table>
+         </div>     
         </div>
       )}
 
@@ -1567,6 +1578,7 @@ function StockAdjustmentPanel() {
         {loading ? <div className="empty-state">Loading…</div> : decided.length === 0 ? (
           <div className="empty-state">Nothing here yet.</div>
         ) : (
+          <div style={{ overflowX: "auto" }}>
           <table>
             <thead><tr><th>Product</th><th>Reason</th><th>Qty change</th><th>Value</th><th>Status</th></tr></thead>
             <tbody>
@@ -1581,6 +1593,7 @@ function StockAdjustmentPanel() {
               ))}
             </tbody>
           </table>
+         </div>       
         )}
       </div>
       {toast && <div className="toast">{toast}</div>}
@@ -1904,7 +1917,15 @@ function POS() {
             <form onSubmit={handleManualSubmit} style={{ flex: 1, position: "relative" }}>
               <input type="text" placeholder="Or type SKU / product name…" value={manualCode}
                 onChange={(ev) => { setManualCode(ev.target.value); setSuggestOpen(true); }}
-                onBlur={() => setTimeout(() => setSuggestOpen(false), 150)} style={{ width: "100%" }} />
+                onBlur={() => setTimeout(() => setSuggestOpen(false), 150)} 
+                style={{ 
+                  width: "100%", 
+                  padding: "12px 16px", 
+                  backgroundColor: "var(--surface-sunken)", 
+                  border: "none", 
+                  borderRadius: "999px", 
+                  outline: "none" 
+                }} />
               {suggestOpen && suggestions.length > 0 && (
                 <div className="card" style={{ position: "absolute", top: "110%", left: 0, right: 0, zIndex: 10, padding: 6 }}>
                   {suggestions.map((p) => (
@@ -2339,7 +2360,7 @@ function Shift() {
       </div>
 
       {!shift ? (
-        <div className="card" style={{ maxWidth: 420 }}>
+        <div className="card" style={{ maxWidth: 420, marginBottom: 24 }}>
           <div className="card-title">Open a shift</div>
           <form onSubmit={handleOpen}>
             <div className="field"><label>Starting cash in drawer</label><NumberInput value={openingCash} onChange={setOpeningCash} placeholder="0" /></div>
@@ -2379,6 +2400,7 @@ function Shift() {
       <div className="card">
         <div className="card-title">{isManager ? "All shift history" : "My shift history"}</div>
         {history.length === 0 ? <div className="empty-state">No closed shifts yet.</div> : (
+          <div style={{ overflowX: "auto" }}>
           <table>
             <thead><tr>{isManager && <th>Staff</th>}<th>Opened</th><th>Expected</th><th>Actual</th><th>Variance</th></tr></thead>
             <tbody>
@@ -2393,6 +2415,7 @@ function Shift() {
               ))}
             </tbody>
           </table>
+         </div>       
         )}
       </div>
       {toast && <div className="toast">{toast}</div>}
@@ -2848,6 +2871,7 @@ function Export() {
       <div className="card">
         <div className="card-title">Recent price / stock edits</div>
         {auditLog.length === 0 ? <div className="empty-state">No direct catalogue edits logged yet.</div> : (
+          <div style={{ overflowX: "auto" }}>
           <table>
             <thead><tr><th>When</th><th>Product</th><th>By</th><th>Before</th><th>After</th></tr></thead>
             <tbody>
@@ -2860,6 +2884,7 @@ function Export() {
               ))}
             </tbody>
           </table>
+         </div>       
         )}
       </div>
       {toast && <div className="toast">{toast}</div>}
