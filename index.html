@@ -2439,19 +2439,22 @@ function AnalyticsManager() {
   const [adjustments, setAdjustments] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const { from, to } = resolveRange(preset, custom);
-    setLoading(true);
-    Promise.all([
-      listSales({ from, to }), listProducts(),
-      listCorrections({ status: "approved" }), listAdjustments({ status: "approved" }),
-    ]).then(([s, p, c, a]) => {
-      const inRange = (d) => (!from || d >= from) && (!to || d <= to);
-      setSales(s); setProducts(p);
-      setCorrections(c.filter((x) => inRange(x.createdAt)));
-      setAdjustments(a.filter((x) => inRange(x.createdAt)));
-    }).finally(() => setLoading(false));
-  }, [preset, custom.from, custom.to]);
+   useEffect(() => {
+     const { from, to } = resolveRange(preset, custom);
+     setLoading(true);
+     Promise.all([
+       listSales({ from, to }), listProducts(),
+       listCorrections({ status: "approved" }), listAdjustments({ status: "approved" }),
+     ]).then(([s, p, c, a]) => {
+       const inRange = (d) => (!from || d >= from) && (!to || d <= to);
+       setSales(s); setProducts(p);
+       setCorrections(c.filter((x) => inRange(x.createdAt)));
+       setAdjustments(a.filter((x) => inRange(x.createdAt)));
+     }).catch((err) => {
+       alert("Analytics failed to load: " + err.message);
+     }).finally(() => setLoading(false));
+   }, [preset, custom.from, custom.to]);
+   
 
   const categoryMap = useMemo(() => Object.fromEntries(products.map((p) => [p.sku, p.category])), [products]);
   const categories = useMemo(() => ["All", ...new Set(products.map((p) => p.category))], [products]);
