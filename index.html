@@ -1,0 +1,2876 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#fff9fb" />
+<title>Kirakira Studio — Store</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* ---------------------------------------------------------------
+   Kirakira Studio — design tokens
+   Palette: blush white base, deep plum ink, sparkle-pink accent,
+   lavender for manager-only surfaces, mint for "good" states,
+   amber for low-stock warnings. Zen Maru Gothic (rounded, reads
+   well in both Latin and Japanese) carries headings; Inter carries
+   body copy; JetBrains Mono carries SKUs, prices, and barcodes.
+   ----------------------------------------------------------------*/
+:root {
+  --bg: #fff9fb;
+  --surface: #ffffff;
+  --surface-sunken: #fdf2f6;
+  --ink: #2b2438;
+  --ink-soft: #6e6580;
+  --ink-faint: #a89fb5;
+  --border: #f0e0e8;
+  --accent: #ff6fa5;
+  --accent-ink: #ffffff;
+  --accent-soft: #ffe3ee;
+  --lavender: #9b8fd9;
+  --lavender-soft: #ece9fa;
+  --mint: #35b28c;
+  --mint-soft: #dff5ee;
+  --amber: #e08a2e;
+  --amber-soft: #fbedd8;
+  --danger: #e0503f;
+  --danger-soft: #fbe4e1;
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+  --shadow-sm: 0 1px 2px rgba(43, 36, 56, 0.06);
+  --shadow-md: 0 8px 24px rgba(43, 36, 56, 0.08);
+  --font-display: 'Zen Maru Gothic', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+* { box-sizing: border-box; }
+html, body, #root { height: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3, h4 { font-family: var(--font-display); margin: 0; }
+p { margin: 0; }
+button, input, select, textarea { font-family: inherit; font-size: inherit; }
+a { color: inherit; }
+
+.sparkle::before { content: "✦"; margin-right: 6px; color: var(--accent); }
+
+/* ---------- App shell ---------- */
+.app-shell { display: flex; min-height: 100vh; }
+.sidebar {
+  width: 232px;
+  flex-shrink: 0;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.sidebar-brand { padding: 0 8px; }
+.sidebar-brand h1 { font-size: 20px; line-height: 1.2; }
+.sidebar-brand .jp { font-size: 12px; color: var(--accent); letter-spacing: 0.05em; }
+.sidebar-nav { display: flex; flex-direction: column; gap: 4px; }
+.sidebar-nav a {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: var(--radius-sm);
+  text-decoration: none; color: var(--ink-soft); font-weight: 500; font-size: 14px;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.sidebar-nav a:hover { background: var(--surface-sunken); color: var(--ink); }
+.sidebar-nav a.active { background: var(--accent-soft); color: var(--accent); font-weight: 700; }
+.sidebar-footer { margin-top: auto; display: flex; flex-direction: column; gap: 10px; }
+.role-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.04em; width: fit-content;
+}
+.role-badge.manager { background: var(--lavender-soft); color: var(--lavender); }
+.role-badge.staff { background: var(--mint-soft); color: var(--mint); }
+.main-content { flex: 1; padding: 32px 40px; max-width: 1200px; }
+.page-header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
+.page-header h2 { font-size: 26px; }
+.page-header .subtitle { color: var(--ink-soft); font-size: 14px; margin-top: 4px; }
+
+/* ---------- Buttons ---------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  border: none; border-radius: var(--radius-sm); padding: 10px 18px;
+  font-weight: 600; font-size: 14px; cursor: pointer; transition: transform 0.08s ease, opacity 0.15s ease;
+}
+.btn:active { transform: scale(0.97); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-primary { background: var(--accent); color: var(--accent-ink); }
+.btn-primary:hover:not(:disabled) { opacity: 0.9; }
+.btn-secondary { background: var(--surface-sunken); color: var(--ink); }
+.btn-secondary:hover:not(:disabled) { background: var(--border); }
+.btn-outline { background: transparent; color: var(--ink); border: 1px solid var(--border); }
+.btn-danger { background: var(--danger-soft); color: var(--danger); }
+.btn-danger:hover:not(:disabled) { background: #f6d2cd; }
+.btn-lavender { background: var(--lavender-soft); color: var(--lavender); }
+.btn-sm { padding: 6px 12px; font-size: 13px; }
+.btn-block { width: 100%; }
+.icon-btn {
+  width: 36px; height: 36px; border-radius: 999px; border: 1px solid var(--border);
+  background: var(--surface); display: inline-flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 16px;
+}
+
+/* ---------- Cards / surfaces ---------- */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; box-shadow: var(--shadow-sm); }
+.card-title { font-size: 15px; font-weight: 700; margin-bottom: 12px; }
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
+.two-col-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 18px 20px; }
+.stat-card .label { font-size: 12px; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600; }
+.stat-card .value { font-family: var(--font-mono); font-size: 26px; font-weight: 700; margin-top: 6px; }
+.stat-card .delta { font-size: 12px; margin-top: 4px; color: var(--mint); }
+.stat-card .delta.down { color: var(--danger); }
+
+/* ---------- Forms ---------- */
+.field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.field label { font-size: 13px; font-weight: 600; color: var(--ink-soft); }
+.field input, .field select, .field textarea {
+  border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 12px;
+  background: var(--surface); color: var(--ink); outline: none;
+}
+.field input:focus, .field select:focus, .field textarea:focus { border-color: var(--accent); }
+.field-row { display: flex; gap: 12px; }
+.field-row .field { flex: 1 1 0%; min-width: 0; }
+.form-error { color: var(--danger); font-size: 13px; margin-top: -4px; margin-bottom: 12px; }
+
+/* ---------- Table ---------- */
+.table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface); }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+thead th {
+  text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em;
+  color: var(--ink-soft); padding: 12px 16px; border-bottom: 1px solid var(--border); font-weight: 700;
+}
+tbody td { padding: 12px 16px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover { background: var(--surface-sunken); }
+.mono { font-family: var(--font-mono); }
+.badge { display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+.badge.ok { background: var(--mint-soft); color: var(--mint); }
+.badge.low { background: var(--amber-soft); color: var(--amber); }
+.badge.out { background: var(--danger-soft); color: var(--danger); }
+
+/* ---------- Login ---------- */
+.login-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(160deg, var(--bg) 0%, var(--accent-soft) 100%); padding: 20px; }
+.login-card { width: 100%; max-width: 380px; background: var(--surface); border-radius: var(--radius-lg); padding: 36px 32px; box-shadow: var(--shadow-md); text-align: center; }
+.login-card h1 { font-size: 24px; }
+.login-card .jp { color: var(--accent); font-size: 13px; margin: 4px 0 2px; }
+.login-card .motto { color: var(--ink-soft); font-size: 13px; margin-bottom: 28px; }
+.login-card form { text-align: left; }
+
+/* ---------- Modal ---------- */
+.modal-overlay { position: fixed; inset: 0; background: rgba(43, 36, 56, 0.45); display: flex; align-items: center; justify-content: center; z-index: 50; padding: 20px; }
+.modal { background: var(--surface); border-radius: var(--radius-lg); padding: 24px; max-width: 480px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-md); }
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+
+/* ---------- POS ---------- */
+.pos-layout { display: grid; grid-template-columns: 1.3fr 0.9fr; gap: 24px; align-items: start; }
+.pos-scan-row { display: flex; gap: 10px; margin-bottom: 16px; }
+.pos-scan-row input { flex: 1; }
+.cart-line { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.cart-line:last-child { border-bottom: none; }
+.cart-line .info { flex: 1; }
+.cart-line .name { font-weight: 600; font-size: 14px; }
+.cart-line .sku { font-size: 12px; color: var(--ink-faint); font-family: var(--font-mono); }
+.qty-control { display: flex; align-items: center; gap: 6px; }
+.qty-control button { width: 26px; height: 26px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface-sunken); cursor: pointer; }
+.cart-total-row { display: flex; justify-content: space-between; align-items: baseline; padding-top: 14px; margin-top: 10px; border-top: 2px dashed var(--border); }
+.cart-total-row .amount { font-family: var(--font-mono); font-size: 24px; font-weight: 700; }
+.scanner-box { border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; background: #000; margin-bottom: 12px; }
+.scanner-box #scanner-viewport { width: 100%; }
+
+/* ---------- Barcode label sheet (screen preview) ---------- */
+.label-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+.label-card { border: 1px dashed var(--border); border-radius: var(--radius-sm); padding: 8px; text-align: center; background: var(--surface); }
+.label-card .label-name { font-size: 11px; font-weight: 600; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.label-card .label-price { font-family: var(--font-mono); font-size: 11px; color: var(--ink-soft); margin-top: 2px; }
+
+/* ---------- Receipt (screen preview) ---------- */
+.receipt-preview { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 20px; width: 320px; font-family: var(--font-mono); font-size: 12px; }
+.receipt-preview .r-header { text-align: center; margin-bottom: 12px; }
+.receipt-preview .r-header .store-name { font-family: var(--font-display); font-size: 15px; font-weight: 700; }
+.receipt-preview .r-header .jp { color: var(--accent); font-size: 12px; }
+.receipt-preview hr { border: none; border-top: 1px dashed var(--ink-faint); margin: 10px 0; }
+.receipt-preview .r-line { display: flex; justify-content: space-between; }
+.receipt-preview .r-item-row { margin-bottom: 4px; }
+
+.empty-state { text-align: center; padding: 48px 20px; color: var(--ink-soft); }
+.toast { position: fixed; bottom: 24px; right: 24px; background: var(--ink); color: #fff; padding: 12px 20px; border-radius: var(--radius-sm); box-shadow: var(--shadow-md); z-index: 100; font-size: 14px; }
+.toolbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
+.toolbar input[type="text"], .toolbar select { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 9px 12px; background: var(--surface); }
+.spacer { flex: 1; }
+
+/* ---------- Mobile chrome (hidden on desktop) ---------- */
+.mobile-topbar, .mobile-tabbar { display: none; }
+
+@media (max-width: 768px) {
+  /* Sized around a Galaxy A23-class phone (~360-412px CSS width): a fixed
+     top bar for identity/sign-out, a fixed bottom tab bar for navigation
+     (thumb reach), and the sidebar fully removed rather than squeezed. */
+  .app-shell { display: block; }
+  .sidebar { display: none; }
+
+  .mobile-topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 20;
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 12px 16px;
+  }
+  .mobile-topbar-brand { font-family: var(--font-display); font-weight: 700; font-size: 16px; display: flex; align-items: center; }
+
+  .main-content { padding: 16px 14px 84px; max-width: 100%; }
+  .page-header h2 { font-size: 22px; }
+
+  .mobile-tabbar {
+    display: flex;
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
+    background: var(--surface); border-top: 1px solid var(--border);
+    padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
+  }
+  .mobile-tab {
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;
+    padding: 8px 2px; border-radius: var(--radius-sm); text-decoration: none;
+    color: var(--ink-soft); min-height: 48px; justify-content: center;
+  }
+  .mobile-tab.active { color: var(--accent); background: var(--accent-soft); }
+  .mobile-tab-icon { font-size: 19px; line-height: 1; }
+  .mobile-tab-label { font-size: 10px; font-weight: 600; }
+
+  /* Touch targets: keep every tappable control comfortably above the
+     ~44px accessibility minimum, and bump input font-size to 16px so
+     Chrome/Samsung Internet don't auto-zoom the page on focus. */
+  .btn { min-height: 44px; padding: 11px 18px; }
+  .btn-sm { min-height: 38px; }
+  .icon-btn { width: 42px; height: 42px; font-size: 18px; }
+  .field input, .field select, .field textarea,
+  .toolbar input, .toolbar select { font-size: 16px; padding: 12px 14px; }
+  .qty-control button { width: 34px; height: 34px; font-size: 16px; }
+  .table-wrap table { font-size: 13px; }
+  thead th, tbody td { padding: 10px 10px; }
+
+  .pos-layout { grid-template-columns: 1fr; gap: 16px; }
+  .pos-scan-row { flex-direction: column; }
+  .pos-scan-row .btn { width: 100%; }
+  .scanner-box #scanner-viewport { min-height: 220px; }
+
+  .stat-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .stat-card { padding: 14px; }
+  .stat-card .value { font-size: 20px; }
+
+  .two-col-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 380px) {
+  .stat-grid { grid-template-columns: 1fr 1fr; }
+  .mobile-tab-label { font-size: 9px; }
+}
+/* ---------------------------------------------------------------
+   Print stylesheets.
+   Both the label sheet and the receipt render an on-screen preview
+   normally, and are hidden/shown via the .print-only / .no-print
+   utility classes so only the relevant printable node shows up in
+   the browser print dialog. Sizes are in millimeters so they map
+   predictably to small thermal/label printers.
+   ----------------------------------------------------------------*/
+
+.print-only { display: none; }
+
+@media print {
+  .no-print { display: none !important; }
+  .print-only { display: block !important; }
+  body { background: #fff !important; }
+}
+
+/* ---- Barcode labels: small sticker sheet, default 40mm x 24mm ---- */
+@media print {
+  @page.labels { size: auto; margin: 3mm; }
+  .label-sheet {
+    display: grid;
+    grid-template-columns: repeat(var(--cols, 4), 1fr);
+    gap: 2mm;
+  }
+  .barcode-label {
+    width: 40mm;
+    height: 24mm;
+    padding: 1.5mm;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 0.2mm dotted #999;
+    page-break-inside: avoid;
+    overflow: hidden;
+  }
+  .barcode-label .bl-name {
+    font-family: Inter, sans-serif;
+    font-size: 6.5pt;
+    font-weight: 700;
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
+  }
+  .barcode-label svg { width: 90%; height: auto; }
+  .barcode-label .bl-price {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7pt;
+    font-weight: 700;
+  }
+}
+
+/* ---- Receipt: narrow thermal-style, default 58mm width ---- */
+@media print {
+  @page.receipt { size: 58mm auto; margin: 0; }
+  .receipt-print {
+    width: 58mm;
+    padding: 3mm;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8.5pt;
+    color: #000;
+  }
+  .receipt-print .r-header { text-align: center; margin-bottom: 2mm; }
+  .receipt-print .r-header .store-name { font-size: 11pt; font-weight: 700; }
+  .receipt-print .r-header .jp,
+  .receipt-print .r-header .motto,
+  .receipt-print .r-header .address { font-size: 7.5pt; }
+  .receipt-print hr { border: none; border-top: 0.3mm dashed #000; margin: 2mm 0; }
+  .receipt-print .r-line { display: flex; justify-content: space-between; }
+  .receipt-print .r-item-row { margin-bottom: 1mm; }
+}
+
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<!-- In-browser JSX transform. This is what lets the whole app live in one -->
+<!-- plain .html file with no build step -- see GUIDE section in the repo -->
+<!-- for the tradeoffs (slower first load, no code splitting). -->
+<script src="https://unpkg.com/@babel/standalone@7/babel.min.js"></script>
+
+<script type="text/babel" data-type="module" data-presets="react">
+// ============================================================================
+// Kirakira Studio — single-file build
+// ============================================================================
+// Everything (React, Firebase, all pages/components/utils) lives in this one
+// script so the whole app is exactly one index.html file — no npm install,
+// no build step. React runs from ESM CDN builds (esm.sh) and Firebase from
+// its official ESM CDN build; Babel Standalone (loaded via <script> above)
+// transforms this file's JSX in the browser before it runs.
+//
+// Trade-off, in plain terms: this is slower to first-load than a proper Vite
+// build (JSX is parsed and transformed by the browser on every visit, and
+// nothing is code-split), and there's no automated build check. Reasonable
+// for a small store's internal tool in exchange for "just upload one file."
+// If this ever needs to scale to many concurrent staff or heavier traffic,
+// moving back to a real build step (the original Vite project this was
+// derived from) is the better foundation.
+
+import React, { useState, useEffect, useMemo, useRef, createContext, useContext } from "https://esm.sh/react@18.3.1";
+import { createRoot } from "https://esm.sh/react-dom@18.3.1/client";
+import { HashRouter, Routes, Route, Navigate, NavLink } from "https://esm.sh/react-router-dom@6.26.0?deps=react@18.3.1,react-dom@18.3.1";
+
+import { initializeApp, deleteApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+import {
+  getFirestore, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, addDoc,
+  collection, query, where, orderBy, limit, serverTimestamp, runTransaction,
+  onSnapshot, Timestamp,
+} from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+import JsBarcode from "https://esm.sh/jsbarcode@3.11.6";
+import { Html5Qrcode } from "https://esm.sh/html5-qrcode@2.3.8";
+import * as XLSX from "https://esm.sh/xlsx@0.18.5";
+
+// ----------------------------------------------------------------------
+// FIREBASE CONFIG — edit these six values for your own Firebase project.
+// Find them in Firebase Console -> Project settings -> General -> Your apps.
+// These are safe to keep public; access control is enforced by Firestore
+// Security Rules (see firestore.rules in the project docs), not by hiding
+// this config.
+// ----------------------------------------------------------------------
+const firebaseConfig = {
+  apiKey: "AIzaSyDh_7JFCCylng4SmG_PHo9AkaRTdiJPFGg",
+  authDomain: "kirakira-c1e60.firebaseapp.com",
+  projectId: "kirakira-c1e60",
+  storageBucket: "kirakira-c1e60.firebasestorage.app",
+  messagingSenderId: "613131473678",
+  appId: "1:613131473678:web:0976658391757a5968bd5f",
+};
+
+const firebaseApp = initializeApp(firebaseConfig);
+const auth = getAuth(firebaseApp);
+const db = getFirestore(firebaseApp);
+
+// ============================================================================
+// Auth context
+// ============================================================================
+const AuthContext = createContext(null);
+
+function AuthProvider({ children }) {
+  const [user, setUser] = useState(null);
+  const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const unsubAuth = onAuthStateChanged(auth, (firebaseUser) => {
+      setUser(firebaseUser);
+      if (!firebaseUser) { setProfile(null); setLoading(false); }
+    });
+    return unsubAuth;
+  }, []);
+
+  useEffect(() => {
+    if (!user) return;
+    setLoading(true);
+    const unsubProfile = onSnapshot(doc(db, "users", user.uid), (snap) => {
+      setProfile(snap.exists() ? snap.data() : null);
+      setLoading(false);
+    });
+    return unsubProfile;
+  }, [user]);
+
+  const login = (email, password) => signInWithEmailAndPassword(auth, email, password);
+  const logout = () => signOut(auth);
+
+  const value = {
+    user, profile, role: profile?.role ?? null,
+    isManager: profile?.role === "manager",
+    loading, login, logout,
+  };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+}
+
+function useAuth() {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error("useAuth must be used inside AuthProvider");
+  return ctx;
+}
+
+// ============================================================================
+// utils: pricing
+// ============================================================================
+function getEffectivePrice(product, now = new Date()) {
+  const listPrice = product.price ?? 0;
+  const type = product.discountType ?? "none";
+  const value = Number(product.discountValue) || 0;
+
+  if (type === "none" || value <= 0) {
+    return { unitPrice: listPrice, isDiscounted: false, discountAmount: 0 };
+  }
+  if (product.discountStart && now < new Date(product.discountStart)) {
+    return { unitPrice: listPrice, isDiscounted: false, discountAmount: 0 };
+  }
+  if (product.discountEnd && now > new Date(product.discountEnd + "T23:59:59")) {
+    return { unitPrice: listPrice, isDiscounted: false, discountAmount: 0 };
+  }
+
+  let discountAmount = type === "percent" ? Math.round(listPrice * (value / 100)) : value;
+  discountAmount = Math.max(0, Math.min(discountAmount, listPrice));
+  return { unitPrice: listPrice - discountAmount, isDiscounted: discountAmount > 0, discountAmount };
+}
+
+// ============================================================================
+// utils: normalize (backward-compat for pre-discount/pre-change sales)
+// ============================================================================
+function normalizeSaleItem(it) {
+  return {
+    productId: it.productId, sku: it.sku, name: it.name,
+    listPrice: it.listPrice ?? it.price ?? 0,
+    unitPrice: it.unitPrice ?? it.price ?? 0,
+    cost: it.cost ?? 0,
+    qty: it.qty,
+  };
+}
+
+function normalizeSale(sale) {
+  const items = (sale.items ?? []).map(normalizeSaleItem);
+  const subtotal = sale.subtotal ?? sale.total ?? 0;
+  return {
+    ...sale, items, subtotal,
+    productDiscountTotal: sale.productDiscountTotal ?? 0,
+    transactionDiscount: sale.transactionDiscount ?? null,
+    total: sale.total ?? subtotal,
+    amountReceived: sale.amountReceived ?? sale.total ?? 0,
+    changeGiven: sale.changeGiven ?? 0,
+    discountApproval: sale.discountApproval ?? null,
+  };
+}
+
+// ============================================================================
+// utils: dateRanges
+// ============================================================================
+const RANGE_PRESETS = ["Today", "7 days", "30 days", "This month", "Last month", "This quarter", "Year to date", "All time", "Custom"];
+
+function startOfDay(d) { const x = new Date(d); x.setHours(0, 0, 0, 0); return x; }
+function endOfDay(d) { const x = new Date(d); x.setHours(23, 59, 59, 999); return x; }
+
+function resolveRange(preset, custom = {}) {
+  const now = new Date();
+  switch (preset) {
+    case "Today": return { from: startOfDay(now), to: endOfDay(now) };
+    case "7 days": { const f = new Date(now); f.setDate(f.getDate() - 6); return { from: startOfDay(f), to: endOfDay(now) }; }
+    case "30 days": { const f = new Date(now); f.setDate(f.getDate() - 29); return { from: startOfDay(f), to: endOfDay(now) }; }
+    case "This month": return { from: new Date(now.getFullYear(), now.getMonth(), 1), to: endOfDay(now) };
+    case "Last month": { const f = new Date(now.getFullYear(), now.getMonth() - 1, 1); const t = new Date(now.getFullYear(), now.getMonth(), 0); return { from: f, to: endOfDay(t) }; }
+    case "This quarter": { const q = Math.floor(now.getMonth() / 3); return { from: new Date(now.getFullYear(), q * 3, 1), to: endOfDay(now) }; }
+    case "Year to date": return { from: new Date(now.getFullYear(), 0, 1), to: endOfDay(now) };
+    case "All time": return { from: null, to: null };
+    case "Custom": return {
+      from: custom.from ? startOfDay(new Date(custom.from)) : null,
+      to: custom.to ? endOfDay(new Date(custom.to)) : null,
+    };
+    default: return { from: null, to: null };
+  }
+}
+
+// ============================================================================
+// utils: managerAuth — verify a manager's password without disturbing the
+// cashier's session, via a short-lived secondary Firebase App instance.
+// ============================================================================
+async function verifyManagerCredentials(email, password) {
+  const secondaryApp = initializeApp(firebaseConfig, "manager-verify-" + Date.now());
+  const secondaryAuth = getAuth(secondaryApp);
+  try {
+    const cred = await signInWithEmailAndPassword(secondaryAuth, email.trim(), password);
+    const profileSnap = await getDoc(doc(db, "users", cred.user.uid));
+    const profile = profileSnap.exists() ? profileSnap.data() : null;
+    if (profile?.role !== "manager") return { ok: false, error: "NOT_A_MANAGER" };
+    return { ok: true, name: profile.name || email };
+  } catch (err) {
+    return { ok: false, error: err.code || "UNKNOWN" };
+  } finally {
+    await signOut(secondaryAuth).catch(() => {});
+    await deleteApp(secondaryApp).catch(() => {});
+  }
+}
+
+// ============================================================================
+// utils: settings (POS settings doc)
+// ============================================================================
+const SETTINGS_REF = doc(db, "settings", "pos");
+const SETTINGS_DEFAULTS = { staffMaxDiscountPercent: 10 };
+
+async function getSettings() {
+  const snap = await getDoc(SETTINGS_REF);
+  return snap.exists() ? { ...SETTINGS_DEFAULTS, ...snap.data() } : SETTINGS_DEFAULTS;
+}
+async function updateSettings(data) {
+  return setDoc(SETTINGS_REF, data, { merge: true });
+}
+
+// ============================================================================
+// utils: inventory (products) — SKU is the Firestore document ID, and is
+// auto-generated sequentially (KRK-000, KRK-001, ...) via a counter doc.
+// ============================================================================
+const productsCol = collection(db, "products");
+
+async function listProducts() {
+  const snap = await getDocs(query(productsCol, orderBy("name")));
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+}
+
+async function getProduct(sku) {
+  const snap = await getDoc(doc(db, "products", sku));
+  return snap.exists() ? { id: snap.id, ...snap.data() } : null;
+}
+const findProductBySku = getProduct;
+
+async function createProduct(data) {
+  return await runTransaction(db, async (transaction) => {
+    const counterRef = doc(db, "counters", "sku");
+    const counterSnap = await transaction.get(counterRef);
+    let nextValue = 0;
+    if (counterSnap.exists()) nextValue = (counterSnap.data().current || 0) + 1;
+
+    const alphaNum = nextValue.toString(36).toUpperCase().padStart(3, "0");
+    const newSku = `KRK-${alphaNum}`;
+
+    const productRef = doc(db, "products", newSku);
+    const existingSnap = await transaction.get(productRef);
+    if (existingSnap.exists()) {
+      const err = new Error(`SKU "${newSku}" is already used by "${existingSnap.data().name}".`);
+      err.code = "DUPLICATE_SKU";
+      err.existing = { id: existingSnap.id, ...existingSnap.data() };
+      throw err;
+    }
+
+    transaction.set(counterRef, { current: nextValue }, { merge: true });
+    const newProductData = { ...data, sku: newSku, createdAt: serverTimestamp(), updatedAt: serverTimestamp() };
+    transaction.set(productRef, newProductData);
+    return productRef;
+  });
+}
+
+async function updateProduct(sku, data, actor) {
+  const ref = doc(db, "products", sku);
+  const beforeSnap = actor ? await getDoc(ref) : null;
+  await updateDoc(ref, { ...data, updatedAt: serverTimestamp() });
+
+  if (actor && beforeSnap?.exists()) {
+    const before = beforeSnap.data();
+    const fieldsToWatch = ["price", "cost", "stock"];
+    const changed = fieldsToWatch.some((f) => data[f] !== undefined && Number(data[f]) !== Number(before[f]));
+    if (changed) {
+      await addDoc(collection(db, "auditLog"), {
+        type: "product_edit", sku, productName: before.name,
+        actorUid: actor.uid, actorName: actor.name,
+        before: { price: before.price ?? null, cost: before.cost ?? null, stock: before.stock ?? null },
+        after: {
+          price: data.price ?? before.price ?? null,
+          cost: data.cost ?? before.cost ?? null,
+          stock: data.stock ?? before.stock ?? null,
+        },
+        createdAt: serverTimestamp(),
+      });
+    }
+  }
+}
+
+async function deleteProduct(sku) { return deleteDoc(doc(db, "products", sku)); }
+
+function stockStatus(product) {
+  const threshold = product.lowStockThreshold ?? 10;
+  if (product.stock <= 0) return "out";
+  if (product.stock <= threshold) return "low";
+  return "ok";
+}
+
+// ============================================================================
+// utils: sales
+// ============================================================================
+async function createSale({
+  items, subtotal, productDiscountTotal, transactionDiscount, total,
+  paymentMethod, amountReceived, changeGiven, discountApproval,
+  cashierUid, cashierName,
+}) {
+  const saleRef = doc(collection(db, "sales"));
+  const receiptNo = `KRK${Date.now().toString().slice(-8)}`;
+
+  await runTransaction(db, async (tx) => {
+    const productRefs = items.map((it) => doc(db, "products", it.productId));
+    const productSnaps = await Promise.all(productRefs.map((ref) => tx.get(ref)));
+
+    for (let i = 0; i < items.length; i++) {
+      const snap = productSnaps[i];
+      if (!snap.exists()) throw new Error(`Product ${items[i].name} no longer exists.`);
+      const currentStock = snap.data().stock ?? 0;
+      if (currentStock < items[i].qty) {
+        throw new Error(`Not enough stock for ${items[i].name} (have ${currentStock}, need ${items[i].qty}).`);
+      }
+    }
+    productSnaps.forEach((snap, i) => {
+      const currentStock = snap.data().stock ?? 0;
+      tx.update(productRefs[i], { stock: currentStock - items[i].qty });
+    });
+
+    tx.set(saleRef, {
+      receiptNo, items, subtotal, productDiscountTotal,
+      transactionDiscount: transactionDiscount ?? null, total,
+      paymentMethod, amountReceived: amountReceived ?? total, changeGiven: changeGiven ?? 0,
+      discountApproval: discountApproval ?? null,
+      cashierUid, cashierName, createdAt: serverTimestamp(),
+    });
+  });
+
+  return { id: saleRef.id, receiptNo };
+}
+
+async function listSales({ from, to, cashierUid } = {}) {
+  const clauses = [];
+  if (from) clauses.push(where("createdAt", ">=", Timestamp.fromDate(from)));
+  if (to) clauses.push(where("createdAt", "<=", Timestamp.fromDate(to)));
+  if (cashierUid) clauses.push(where("cashierUid", "==", cashierUid));
+  const q = query(collection(db, "sales"), ...clauses, orderBy("createdAt", "desc"));
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => {
+    const data = d.data();
+    return normalizeSale({ id: d.id, ...data, createdAt: data.createdAt?.toDate?.() ?? new Date() });
+  });
+}
+
+// ============================================================================
+// utils: corrections (void a sale)
+// ============================================================================
+const correctionsCol = collection(db, "corrections");
+
+async function requestCorrection({ sale, reason, uid, name, role }) {
+  if (role === "manager") return applyApprovedCorrection({ sale, reason, uid, name });
+  return addDoc(correctionsCol, {
+    originalSaleId: sale.id, originalReceiptNo: sale.receiptNo, items: sale.items,
+    total: sale.total, paymentMethod: sale.paymentMethod, reason,
+    requestedByUid: uid, requestedByName: name, requestedByRole: role,
+    status: "pending", createdAt: serverTimestamp(),
+  });
+}
+
+async function applyApprovedCorrection({ sale, reason, uid, name }) {
+  const correctionRef = doc(correctionsCol);
+  await runTransaction(db, async (tx) => {
+    const productRefs = sale.items.map((it) => doc(db, "products", it.productId));
+    const snaps = await Promise.all(productRefs.map((ref) => tx.get(ref)));
+    snaps.forEach((snap, i) => {
+      if (!snap.exists()) return;
+      const currentStock = snap.data().stock ?? 0;
+      tx.update(productRefs[i], { stock: currentStock + sale.items[i].qty, updatedAt: serverTimestamp() });
+    });
+    tx.set(correctionRef, {
+      originalSaleId: sale.id, originalReceiptNo: sale.receiptNo, items: sale.items,
+      total: sale.total, paymentMethod: sale.paymentMethod, reason,
+      requestedByUid: uid, requestedByName: name, requestedByRole: "manager",
+      status: "approved", createdAt: serverTimestamp(),
+      decidedByUid: uid, decidedByName: name, decidedAt: serverTimestamp(),
+    });
+  });
+  return correctionRef;
+}
+
+async function approveCorrection(correction, manager) {
+  await runTransaction(db, async (tx) => {
+    const cRef = doc(db, "corrections", correction.id);
+    const cSnap = await tx.get(cRef);
+    if (!cSnap.exists() || cSnap.data().status !== "pending") throw new Error("This request is no longer pending.");
+    const items = cSnap.data().items;
+    const productRefs = items.map((it) => doc(db, "products", it.productId));
+    const snaps = await Promise.all(productRefs.map((ref) => tx.get(ref)));
+    snaps.forEach((snap, i) => {
+      if (!snap.exists()) return;
+      const currentStock = snap.data().stock ?? 0;
+      tx.update(productRefs[i], { stock: currentStock + items[i].qty, updatedAt: serverTimestamp() });
+    });
+    tx.update(cRef, { status: "approved", decidedByUid: manager.uid, decidedByName: manager.name, decidedAt: serverTimestamp() });
+  });
+}
+
+async function rejectCorrection(correction, manager) {
+  await updateDoc(doc(db, "corrections", correction.id), {
+    status: "rejected", decidedByUid: manager.uid, decidedByName: manager.name, decidedAt: serverTimestamp(),
+  });
+}
+
+async function listCorrections({ status, requestedByUid } = {}) {
+  const clauses = [];
+  if (status) clauses.push(where("status", "==", status));
+  if (requestedByUid) clauses.push(where("requestedByUid", "==", requestedByUid));
+  const q = query(correctionsCol, ...clauses, orderBy("createdAt", "desc"));
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => {
+    const data = d.data();
+    return { id: d.id, ...data, createdAt: data.createdAt?.toDate?.() ?? new Date(), decidedAt: data.decidedAt?.toDate?.() ?? null };
+  });
+}
+
+// ============================================================================
+// utils: stockAdjustments (restock / return / damaged / lost / opname)
+// ============================================================================
+const adjustmentsCol = collection(db, "stockAdjustments");
+
+const REASON_TYPES = {
+  restock: { label: "Restock (goods received)", needsApproval: false },
+  return_sellable: { label: "Customer return — still sellable", needsApproval: false },
+  return_unsellable: { label: "Customer return — not sellable", needsApproval: false },
+  damaged: { label: "Damaged", needsApproval: true },
+  lost: { label: "Lost / missing", needsApproval: true },
+  opname: { label: "Stocktake correction (opname)", needsApproval: true },
+};
+
+async function requestAdjustment({ product, reasonType, qtyDelta, qtyReported, note, uid, name, role }) {
+  const needsApproval = REASON_TYPES[reasonType].needsApproval && role !== "manager";
+  const base = {
+    productId: product.id, sku: product.sku, productName: product.name, reasonType,
+    qtyDelta, qtyReported, costAtTime: product.cost ?? 0,
+    valuationTotal: qtyDelta * (product.cost ?? 0), note,
+    requestedByUid: uid, requestedByName: name, requestedByRole: role, createdAt: serverTimestamp(),
+  };
+  if (!needsApproval) return applyApprovedAdjustment(base, { uid, name });
+  return addDoc(adjustmentsCol, { ...base, status: "pending" });
+}
+
+async function applyApprovedAdjustment(base, manager) {
+  const ref = doc(adjustmentsCol);
+  await runTransaction(db, async (tx) => {
+    const productRef = doc(db, "products", base.productId);
+    const snap = await tx.get(productRef);
+    if (snap.exists() && base.qtyDelta !== 0) {
+      const newStock = Math.max(0, (snap.data().stock ?? 0) + base.qtyDelta);
+      tx.update(productRef, { stock: newStock, updatedAt: serverTimestamp() });
+    }
+    tx.set(ref, { ...base, status: "approved", decidedByUid: manager.uid, decidedByName: manager.name, decidedAt: serverTimestamp() });
+  });
+  return ref;
+}
+
+async function approveAdjustment(adj, manager) {
+  await runTransaction(db, async (tx) => {
+    const ref = doc(db, "stockAdjustments", adj.id);
+    const snap = await tx.get(ref);
+    if (!snap.exists() || snap.data().status !== "pending") throw new Error("This request is no longer pending.");
+    const data = snap.data();
+    if (data.qtyDelta !== 0) {
+      const productRef = doc(db, "products", data.productId);
+      const pSnap = await tx.get(productRef);
+      if (pSnap.exists()) {
+        const newStock = Math.max(0, (pSnap.data().stock ?? 0) + data.qtyDelta);
+        tx.update(productRef, { stock: newStock, updatedAt: serverTimestamp() });
+      }
+    }
+    tx.update(ref, { status: "approved", decidedByUid: manager.uid, decidedByName: manager.name, decidedAt: serverTimestamp() });
+  });
+}
+
+async function rejectAdjustment(adj, manager) {
+  await updateDoc(doc(db, "stockAdjustments", adj.id), {
+    status: "rejected", decidedByUid: manager.uid, decidedByName: manager.name, decidedAt: serverTimestamp(),
+  });
+}
+
+async function listAdjustments({ status, requestedByUid } = {}) {
+  const clauses = [];
+  if (status) clauses.push(where("status", "==", status));
+  if (requestedByUid) clauses.push(where("requestedByUid", "==", requestedByUid));
+  const q = query(adjustmentsCol, ...clauses, orderBy("createdAt", "desc"));
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => {
+    const data = d.data();
+    return { id: d.id, ...data, createdAt: data.createdAt?.toDate?.() ?? new Date(), decidedAt: data.decidedAt?.toDate?.() ?? null };
+  });
+}
+
+// ============================================================================
+// utils: shifts (cash reconciliation)
+// ============================================================================
+const shiftsCol = collection(db, "shifts");
+
+async function getOpenShift(uid) {
+  const q = query(shiftsCol, where("staffUid", "==", uid), where("status", "==", "open"));
+  const snap = await getDocs(q);
+  if (snap.empty) return null;
+  const d = snap.docs[0];
+  const data = d.data();
+  return { id: d.id, ...data, openedAt: data.openedAt?.toDate?.() ?? new Date() };
+}
+
+async function openShift({ uid, name, openingCash }) {
+  return addDoc(shiftsCol, { staffUid: uid, staffName: name, openingCash, status: "open", openedAt: serverTimestamp() });
+}
+
+async function computeExpectedCash(shift) {
+  const [sales, corrections] = await Promise.all([
+    listSales({ from: shift.openedAt, cashierUid: shift.staffUid }),
+    listCorrections({ requestedByUid: shift.staffUid }),
+  ]);
+  const cashSalesTotal = sales.filter((s) => s.paymentMethod === "Cash").reduce((sum, s) => sum + s.total, 0);
+  const cashVoidsTotal = corrections
+    .filter((c) => c.status === "approved" && c.paymentMethod === "Cash" && c.createdAt >= shift.openedAt)
+    .reduce((sum, c) => sum + c.total, 0);
+  return { openingCash: shift.openingCash, cashSalesTotal, cashVoidsTotal, expectedCash: shift.openingCash + cashSalesTotal - cashVoidsTotal };
+}
+
+async function closeShift(shift, { actualCash }) {
+  const { expectedCash, cashSalesTotal, cashVoidsTotal } = await computeExpectedCash(shift);
+  await updateDoc(doc(db, "shifts", shift.id), {
+    status: "closed", closedAt: serverTimestamp(), cashSalesTotal, cashVoidsTotal,
+    expectedCash, actualCash, variance: actualCash - expectedCash,
+  });
+  return { expectedCash, variance: actualCash - expectedCash };
+}
+
+async function listShifts({ staffUid, max = 50 } = {}) {
+  const clauses = [];
+  if (staffUid) clauses.push(where("staffUid", "==", staffUid));
+  const q = query(shiftsCol, ...clauses, orderBy("openedAt", "desc"), limit(max));
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => {
+    const data = d.data();
+    return { id: d.id, ...data, openedAt: data.openedAt?.toDate?.() ?? new Date(), closedAt: data.closedAt?.toDate?.() ?? null };
+  });
+}
+
+// ============================================================================
+// component: NumberInput — thousand-separator (Indonesian) number field
+// ============================================================================
+function NumberInput({ value, onChange, placeholder, disabled }) {
+  const [display, setDisplay] = useState(formatVal(value));
+
+  function formatVal(v) {
+    if (v === "" || v === null || v === undefined) return "";
+    const n = Number(v);
+    return Number.isNaN(n) ? "" : n.toLocaleString("id-ID");
+  }
+
+  useEffect(() => { setDisplay(formatVal(value)); }, [value]);
+
+  function handleChange(ev) {
+    const digitsOnly = ev.target.value.replace(/\D/g, "");
+    setDisplay(digitsOnly === "" ? "" : Number(digitsOnly).toLocaleString("id-ID"));
+    onChange(digitsOnly === "" ? "" : Number(digitsOnly));
+  }
+
+  return (
+    <input type="text" inputMode="numeric" value={display} onChange={handleChange} placeholder={placeholder} disabled={disabled} />
+  );
+}
+
+// ============================================================================
+// component: Barcode (CODE128 SVG via JsBarcode)
+// ============================================================================
+function Barcode({ value, height = 40, width = 1.4, fontSize = 10, displayValue = true }) {
+  const svgRef = useRef(null);
+
+  useEffect(() => {
+    if (!svgRef.current || !value) return;
+    try {
+      JsBarcode(svgRef.current, value, {
+        format: "CODE128", height, width, fontSize, fontOptions: "bold",
+        font: "JetBrains Mono", displayValue, margin: 4,
+      });
+    } catch (err) { /* invalid chars for this symbology — fail silently */ }
+  }, [value, height, width, fontSize, displayValue]);
+
+  return <svg ref={svgRef} />;
+}
+
+// ============================================================================
+// component: BarcodeScanner (camera, html5-qrcode)
+// ============================================================================
+function BarcodeScanner({ onDetect, onError }) {
+  const containerId = "scanner-viewport";
+  const scannerRef = useRef(null);
+  const wrapRef = useRef(null);
+  const lastValueRef = useRef("");
+  const lastTimeRef = useRef(0);
+
+  useEffect(() => {
+    const scanner = new Html5Qrcode(containerId, { verbose: false });
+    scannerRef.current = scanner;
+
+    const containerWidth = wrapRef.current?.clientWidth ?? 320;
+    const boxWidth = Math.min(320, Math.round(containerWidth * 0.82));
+    const boxHeight = Math.round(boxWidth * 0.55);
+
+    scanner.start(
+      { facingMode: "environment" },
+      { fps: 12, qrbox: { width: boxWidth, height: boxHeight } },
+      (decodedText) => {
+        const now = Date.now();
+        if (decodedText === lastValueRef.current && now - lastTimeRef.current < 1500) return;
+        lastValueRef.current = decodedText;
+        lastTimeRef.current = now;
+        onDetect(decodedText);
+      },
+      () => {}
+    ).catch((err) => onError?.(err));
+
+    return () => {
+      const s = scannerRef.current;
+      if (s) s.stop().then(() => s.clear()).catch(() => {});
+    };
+  }, []);
+
+  return (
+    <div className="scanner-box" ref={wrapRef}>
+      <div id={containerId} />
+    </div>
+  );
+}
+
+// ============================================================================
+// component: Receipt
+// ============================================================================
+const RECEIPT_HEADER = {
+  name: "Kirakira Studio", jp: "キラキラ", motto: "Pretty Things for Everyday",
+  addressLines: ["Jl. Kampus Peradaban no 23", "Balun Ijuk - Bangka, Babel 33172"],
+};
+
+function formatIDR(n) { return "Rp" + Math.round(n).toLocaleString("id-ID"); }
+
+function ReceiptHeader() {
+  return (
+    <div className="r-header">
+      <div className="store-name">{RECEIPT_HEADER.name}</div>
+      <div className="jp">{RECEIPT_HEADER.jp}</div>
+      <div className="motto">{RECEIPT_HEADER.motto}</div>
+      {RECEIPT_HEADER.addressLines.map((line) => <div className="address" key={line}>{line}</div>)}
+    </div>
+  );
+}
+
+function ReceiptBody({ sale }) {
+  const date = sale.createdAt instanceof Date ? sale.createdAt : new Date(sale.createdAt);
+  const hasProductDiscount = sale.productDiscountTotal > 0;
+  const txDiscount = sale.transactionDiscount;
+  return (
+    <>
+      <hr />
+      <div className="r-line"><span>Receipt</span><span>{sale.receiptNo}</span></div>
+      <div className="r-line"><span>Date</span><span>{date.toLocaleString("id-ID")}</span></div>
+      <div className="r-line"><span>Cashier</span><span>{sale.cashierName}</span></div>
+      <hr />
+      {sale.items.map((it) => (
+        <div className="r-item-row" key={it.productId}>
+          <div className="r-line"><span>{it.name}</span><span>{formatIDR(it.unitPrice * it.qty)}</span></div>
+          <div className="r-line">
+            <span>&nbsp;&nbsp;{it.qty} x {formatIDR(it.unitPrice)}{it.unitPrice < it.listPrice ? " (promo)" : ""}</span>
+            <span></span>
+          </div>
+        </div>
+      ))}
+      <hr />
+      <div className="r-line"><span>Subtotal</span><span>{formatIDR(sale.subtotal)}</span></div>
+      {hasProductDiscount && <div className="r-line"><span>Product discounts</span><span>-{formatIDR(sale.productDiscountTotal)}</span></div>}
+      {txDiscount && txDiscount.amount > 0 && (
+        <div className="r-line">
+          <span>Discount {txDiscount.type === "percent" ? `(${txDiscount.value}%)` : ""}</span>
+          <span>-{formatIDR(txDiscount.amount)}</span>
+        </div>
+      )}
+      <div className="r-line" style={{ fontWeight: 700 }}><span>TOTAL</span><span>{formatIDR(sale.total)}</span></div>
+      <div className="r-line"><span>Payment</span><span>{sale.paymentMethod}</span></div>
+      {sale.paymentMethod === "Cash" && (
+        <>
+          <div className="r-line"><span>Bayar</span><span>{formatIDR(sale.amountReceived)}</span></div>
+          <div className="r-line"><span>Kembali</span><span>{formatIDR(sale.changeGiven)}</span></div>
+        </>
+      )}
+      <hr />
+      <div style={{ textAlign: "center", marginTop: 6 }}>Thank you for shopping with us! ✦</div>
+    </>
+  );
+}
+
+function ReceiptPreview({ sale }) {
+  return <div className="receipt-preview"><ReceiptHeader /><ReceiptBody sale={sale} /></div>;
+}
+function ReceiptPrintable({ sale }) {
+  return (
+    <div className="receipt-print print-only" id="receipt-printable">
+      <ReceiptHeader /><ReceiptBody sale={sale} />
+    </div>
+  );
+}
+
+// ============================================================================
+// component: DateRangeFilter
+// ============================================================================
+function DateRangeFilter({ preset, onPresetChange, custom, onCustomChange }) {
+  return (
+    <div className="toolbar">
+      <select value={preset} onChange={(ev) => onPresetChange(ev.target.value)}>
+        {RANGE_PRESETS.map((p) => <option key={p}>{p}</option>)}
+      </select>
+      {preset === "Custom" && (
+        <>
+          <input type="date" value={custom.from ?? ""} onChange={(ev) => onCustomChange({ ...custom, from: ev.target.value })} />
+          <span style={{ color: "var(--ink-faint)" }}>to</span>
+          <input type="date" value={custom.to ?? ""} onChange={(ev) => onCustomChange({ ...custom, to: ev.target.value })} />
+        </>
+      )}
+    </div>
+  );
+}
+
+// ============================================================================
+// component: ProductForm
+// ============================================================================
+const CATEGORIES = ["Stationery", "Apparel", "Accessories", "Homeware", "Bags", "Plush & Toys", "Other"];
+
+function ProductForm({ initial, onSave, onClose, onDuplicate }) {
+  const [form, setForm] = useState({
+    sku: initial?.sku ?? "", name: initial?.name ?? "", category: initial?.category ?? CATEGORIES[0],
+    price: initial?.price ?? "", cost: initial?.cost ?? "", stock: initial?.stock ?? "",
+    lowStockThreshold: initial?.lowStockThreshold ?? 10,
+    discountType: initial?.discountType ?? "none", discountValue: initial?.discountValue ?? "",
+    discountStart: initial?.discountStart ?? "", discountEnd: initial?.discountEnd ?? "",
+  });
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  const [duplicate, setDuplicate] = useState(null);
+
+  function update(field, value) { setForm((f) => ({ ...f, [field]: value })); }
+
+  async function handleSubmit(ev) {
+    ev.preventDefault();
+    if (!form.name.trim()) { setError("Product name is required."); return; }
+    setSaving(true); setError(""); setDuplicate(null);
+    try {
+      await onSave({
+        ...form, sku: form.sku.trim(),
+        price: Number(form.price) || 0, cost: Number(form.cost) || 0,
+        stock: Number(form.stock) || 0, lowStockThreshold: Number(form.lowStockThreshold) || 0,
+        discountType: form.discountType,
+        discountValue: form.discountType === "none" ? 0 : (Number(form.discountValue) || 0),
+        discountStart: form.discountType === "none" ? "" : form.discountStart,
+        discountEnd: form.discountType === "none" ? "" : form.discountEnd,
+      });
+    } catch (err) {
+      if (err.code === "DUPLICATE_SKU") {
+        setError(`SKU "${form.sku}" already exists — it belongs to "${err.existing.name}".`);
+        setDuplicate(err.existing);
+      } else {
+        setError(err.message ?? "Could not save product.");
+      }
+    } finally { setSaving(false); }
+  }
+
+  const margin = form.price && form.cost ? Number(form.price) - Number(form.cost) : null;
+
+  return (
+    <div className="modal-overlay" onMouseDown={(ev) => ev.target === ev.currentTarget && onClose()}>
+      <div className="modal">
+        <div className="modal-header">
+          <h3>{initial ? "Edit product" : "Add product"}</h3>
+          <button className="icon-btn" onClick={onClose}>✕</button>
+        </div>
+        <form onSubmit={handleSubmit}>
+          <div className="field">
+            <label>SKU / Barcode value</label>
+            <input className="mono" value={initial ? form.sku : ""} onChange={() => {}}
+              placeholder={initial ? "" : "Auto-generated (e.g., KRK-001)"} disabled={true} />
+            {!initial && <div style={{ fontSize: 12, color: "var(--ink-faint)", marginTop: 2 }}>SKU will be generated automatically upon saving.</div>}
+          </div>
+          <div className="field">
+            <label>Product name</label>
+            <input value={form.name} onChange={(ev) => update("name", ev.target.value)} placeholder="e.g. Sakura Canvas Tote Bag" />
+          </div>
+          <div className="field-row">
+            <div className="field">
+              <label>Category</label>
+              <select value={form.category} onChange={(ev) => update("category", ev.target.value)}>
+                {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
+              </select>
+            </div>
+            <div className="field">
+              <label>Selling price (IDR)</label>
+              <NumberInput value={form.price} onChange={(v) => update("price", v)} placeholder="0" />
+            </div>
+          </div>
+          <div className="field-row">
+            <div className="field">
+              <label>Cost / modal (IDR)</label>
+              <NumberInput value={form.cost} onChange={(v) => update("cost", v)} placeholder="0" />
+            </div>
+            <div className="field">
+              <label>Margin</label>
+              <input disabled value={margin !== null ? `Rp${margin.toLocaleString("id-ID")}` : "—"} />
+            </div>
+          </div>
+          <div className="field-row">
+            <div className="field">
+              <label>Stock on hand</label>
+              <NumberInput value={form.stock} onChange={(v) => update("stock", v)} placeholder="0" />
+            </div>
+            <div className="field">
+              <label>Low stock alert below</label>
+              <NumberInput value={form.lowStockThreshold} onChange={(v) => update("lowStockThreshold", v)} placeholder="10" />
+            </div>
+          </div>
+
+          <div className="field">
+            <label>Discount</label>
+            <select value={form.discountType} onChange={(ev) => update("discountType", ev.target.value)}>
+              <option value="none">No discount</option>
+              <option value="percent">Percentage off</option>
+              <option value="amount">Fixed amount off</option>
+            </select>
+          </div>
+          {form.discountType !== "none" && (
+            <>
+              <div className="field">
+                <label>{form.discountType === "percent" ? "Percent off (%)" : "Amount off (IDR)"}</label>
+                <NumberInput value={form.discountValue} onChange={(v) => update("discountValue", v)} placeholder="0" />
+              </div>
+              <div className="field-row">
+                <div className="field">
+                  <label>Starts (optional)</label>
+                  <input type="date" value={form.discountStart} onChange={(ev) => update("discountStart", ev.target.value)} />
+                </div>
+                <div className="field">
+                  <label>Ends (optional)</label>
+                  <input type="date" value={form.discountEnd} onChange={(ev) => update("discountEnd", ev.target.value)} />
+                </div>
+              </div>
+              <div style={{ fontSize: 12, color: "var(--ink-faint)", marginTop: -8, marginBottom: 14 }}>
+                Leave dates blank for an always-on discount. POS applies this automatically whenever the item is scanned within the window.
+              </div>
+            </>
+          )}
+
+          {error && (
+            <div className="form-error">
+              {error}
+              {duplicate && (
+                <div style={{ marginTop: 8 }}>
+                  <button type="button" className="btn btn-secondary btn-sm" onClick={() => onDuplicate?.(duplicate)}>
+                    Edit "{duplicate.name}" instead
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+          <div style={{ display: "flex", gap: 10, marginTop: 8 }}>
+            <button type="button" className="btn btn-secondary" onClick={onClose}>Cancel</button>
+            <button type="submit" className="btn btn-primary" disabled={saving}>{saving ? "Saving…" : "Save product"}</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================================
+// component: VoidSalePanel
+// ============================================================================
+const VOID_LOOKBACK_DAYS = 14;
+
+function VoidSalePanel() {
+  const { user, profile, isManager } = useAuth();
+  const [sales, setSales] = useState([]);
+  const [corrections, setCorrections] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [voidingSale, setVoidingSale] = useState(null);
+  const [reason, setReason] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [toast, setToast] = useState("");
+  const [search, setSearch] = useState("");
+
+  async function refresh() {
+    setLoading(true);
+    try {
+      const from = new Date(); from.setDate(from.getDate() - VOID_LOOKBACK_DAYS);
+      const [s, c] = await Promise.all([
+        listSales(isManager ? { from } : { from, cashierUid: user.uid }),
+        isManager ? listCorrections({}) : listCorrections({ requestedByUid: user.uid }),
+      ]);
+      setSales(s); setCorrections(c);
+    } catch (err) {
+      setToast(err.message ?? "Could not load sales/corrections. Check your Firestore rules & indexes.");
+    } finally { setLoading(false); }
+  }
+
+  useEffect(() => { refresh(); }, []);
+  useEffect(() => { if (!toast) return; const t = setTimeout(() => setToast(""), 2200); return () => clearTimeout(t); }, [toast]);
+
+  const handledSaleIds = useMemo(
+    () => new Set(corrections.filter((c) => c.status !== "rejected").map((c) => c.originalSaleId)),
+    [corrections]
+  );
+  const pending = corrections.filter((c) => c.status === "pending");
+  const decided = corrections.filter((c) => c.status !== "pending");
+  const filteredSales = sales.filter((s) => !search || s.receiptNo.toLowerCase().includes(search.toLowerCase()));
+
+  async function submitVoid(ev) {
+    ev.preventDefault();
+    if (!reason.trim()) return;
+    setSubmitting(true);
+    try {
+      await requestCorrection({
+        sale: voidingSale, reason: reason.trim(), uid: user.uid,
+        name: profile?.name ?? user.email, role: isManager ? "manager" : "staff",
+      });
+      setToast(isManager ? "Sale voided and stock restored." : "Void request sent for manager approval.");
+      setVoidingSale(null); setReason(""); refresh();
+    } catch (err) { setToast(err.message ?? "Could not submit request."); } finally { setSubmitting(false); }
+  }
+
+  async function handleApprove(c) {
+    try { await approveCorrection(c, { uid: user.uid, name: profile?.name ?? user.email }); setToast("Approved — stock restored."); refresh(); }
+    catch (err) { setToast(err.message); }
+  }
+  async function handleReject(c) {
+    try { await rejectCorrection(c, { uid: user.uid, name: profile?.name ?? user.email }); setToast("Request rejected."); refresh(); }
+    catch (err) { setToast(err.message); }
+  }
+
+  return (
+    <div>
+      {isManager && pending.length > 0 && (
+        <div className="card" style={{ marginBottom: 24, borderColor: "var(--amber)" }}>
+          <div className="card-title">⏳ Pending approval ({pending.length})</div>
+          <table>
+            <thead><tr><th>Receipt</th><th>Requested by</th><th>Reason</th><th>Amount</th><th></th></tr></thead>
+            <tbody>
+              {pending.map((c) => (
+                <tr key={c.id}>
+                  <td className="mono">{c.originalReceiptNo}</td>
+                  <td>{c.requestedByName}</td>
+                  <td>{c.reason}</td>
+                  <td className="mono">{formatIDR(c.total)}</td>
+                  <td>
+                    <div style={{ display: "flex", gap: 6, justifyContent: "flex-end" }}>
+                      <button className="btn btn-primary btn-sm" onClick={() => handleApprove(c)}>Approve</button>
+                      <button className="btn btn-danger btn-sm" onClick={() => handleReject(c)}>Reject</button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      <div className="card" style={{ marginBottom: 24 }}>
+        <div className="card-title">Void a sale</div>
+        <div className="toolbar"><input type="text" placeholder="Search receipt no…" value={search} onChange={(ev) => setSearch(ev.target.value)} /></div>
+        {loading ? <div className="empty-state">Loading recent sales…</div> : filteredSales.length === 0 ? (
+          <div className="empty-state">No sales in the last {VOID_LOOKBACK_DAYS} days.</div>
+        ) : (
+          <table>
+            <thead><tr><th>Receipt</th><th>Date</th><th>Cashier</th><th>Total</th><th></th></tr></thead>
+            <tbody>
+              {filteredSales.slice(0, 30).map((s) => {
+                const handled = handledSaleIds.has(s.id);
+                return (
+                  <tr key={s.id}>
+                    <td className="mono">{s.receiptNo}</td>
+                    <td>{s.createdAt.toLocaleString("id-ID")}</td>
+                    <td>{s.cashierName}</td>
+                    <td className="mono">{formatIDR(s.total)}</td>
+                    <td>
+                      {handled ? <span className="badge low">Already requested</span> :
+                        <button className="btn btn-outline btn-sm" onClick={() => { setVoidingSale(s); setReason(""); }}>Void</button>}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        )}
+      </div>
+
+      <div className="card">
+        <div className="card-title">{isManager ? "Correction history" : "My requests"}</div>
+        {decided.length === 0 ? <div className="empty-state">Nothing here yet.</div> : (
+          <table>
+            <thead><tr><th>Receipt</th><th>Requested by</th><th>Reason</th><th>Amount</th><th>Status</th></tr></thead>
+            <tbody>
+              {decided.map((c) => (
+                <tr key={c.id}>
+                  <td className="mono">{c.originalReceiptNo}</td>
+                  <td>{c.requestedByName}</td>
+                  <td>{c.reason}</td>
+                  <td className="mono">{formatIDR(c.total)}</td>
+                  <td><span className={`badge ${c.status === "approved" ? "ok" : "out"}`}>{c.status}</span></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+
+      {voidingSale && (
+        <div className="modal-overlay" onMouseDown={(ev) => ev.target === ev.currentTarget && setVoidingSale(null)}>
+          <div className="modal">
+            <div className="modal-header">
+              <h3>Void receipt {voidingSale.receiptNo}</h3>
+              <button className="icon-btn" onClick={() => setVoidingSale(null)}>✕</button>
+            </div>
+            <p style={{ fontSize: 13, color: "var(--ink-soft)", marginBottom: 14 }}>
+              {isManager ? "This will restore stock for every item on this receipt immediately." : "A manager will review this request. Stock is only restored once approved."}
+            </p>
+            <form onSubmit={submitVoid}>
+              <div className="field">
+                <label>Reason</label>
+                <textarea rows={3} value={reason} onChange={(ev) => setReason(ev.target.value)} placeholder="e.g. wrong item scanned, customer cancelled" required />
+              </div>
+              <div style={{ display: "flex", gap: 10 }}>
+                <button type="button" className="btn btn-secondary" onClick={() => setVoidingSale(null)}>Cancel</button>
+                <button type="submit" className="btn btn-primary" disabled={submitting}>{submitting ? "Submitting…" : isManager ? "Void now" : "Send for approval"}</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+      {toast && <div className="toast">{toast}</div>}
+    </div>
+  );
+}
+
+// ============================================================================
+// component: StockAdjustmentPanel
+// ============================================================================
+function StockAdjustmentPanel() {
+  const { user, profile, isManager } = useAuth();
+  const [products, setProducts] = useState([]);
+  const [adjustments, setAdjustments] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [toast, setToast] = useState("");
+
+  const [productSearch, setProductSearch] = useState("");
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [reasonType, setReasonType] = useState("restock");
+  const [qtyInput, setQtyInput] = useState("");
+  const [note, setNote] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  async function refresh() {
+    setLoading(true);
+    try {
+      const [p, a] = await Promise.all([
+        listProducts(),
+        isManager ? listAdjustments({}) : listAdjustments({ requestedByUid: user.uid }),
+      ]);
+      setProducts(p); setAdjustments(a);
+    } catch (err) {
+      setToast(err.message ?? "Could not load products/adjustments. Check your Firestore rules & indexes.");
+    } finally { setLoading(false); }
+  }
+
+  useEffect(() => { refresh(); }, []);
+  useEffect(() => { if (!toast) return; const t = setTimeout(() => setToast(""), 2200); return () => clearTimeout(t); }, [toast]);
+
+  const suggestions = productSearch.length > 0
+    ? products.filter((p) => p.name.toLowerCase().includes(productSearch.toLowerCase()) || p.sku.toLowerCase().includes(productSearch.toLowerCase())).slice(0, 6)
+    : [];
+
+  const isOpname = reasonType === "opname";
+  const qtyDelta = useMemo(() => {
+    if (!selectedProduct) return 0;
+    const n = Number(qtyInput) || 0;
+    if (isOpname) return n - selectedProduct.stock;
+    if (reasonType === "restock" || reasonType === "return_sellable") return n;
+    return -n;
+  }, [qtyInput, reasonType, selectedProduct, isOpname]);
+
+  const pending = adjustments.filter((a) => a.status === "pending");
+  const decided = adjustments.filter((a) => a.status !== "pending");
+
+  async function handleSubmit(ev) {
+    ev.preventDefault();
+    if (!selectedProduct || qtyInput === "") return;
+    setSubmitting(true);
+    try {
+      await requestAdjustment({
+        product: selectedProduct, reasonType, qtyDelta, qtyReported: Number(qtyInput) || 0,
+        note: note.trim(), uid: user.uid, name: profile?.name ?? user.email, role: isManager ? "manager" : "staff",
+      });
+      const needsApproval = REASON_TYPES[reasonType].needsApproval && !isManager;
+      setToast(needsApproval ? "Sent for manager approval." : "Stock updated.");
+      setSelectedProduct(null); setProductSearch(""); setQtyInput(""); setNote("");
+      refresh();
+    } catch (err) { setToast(err.message ?? "Could not submit."); } finally { setSubmitting(false); }
+  }
+
+  async function handleApprove(a) {
+    try { await approveAdjustment(a, { uid: user.uid, name: profile?.name ?? user.email }); setToast("Approved."); refresh(); }
+    catch (err) { setToast(err.message); }
+  }
+  async function handleReject(a) {
+    try { await rejectAdjustment(a, { uid: user.uid, name: profile?.name ?? user.email }); setToast("Rejected."); refresh(); }
+    catch (err) { setToast(err.message); }
+  }
+
+  return (
+    <div>
+      {isManager && pending.length > 0 && (
+        <div className="card" style={{ marginBottom: 24, borderColor: "var(--amber)" }}>
+          <div className="card-title">⏳ Pending approval ({pending.length})</div>
+          <table>
+            <thead><tr><th>Product</th><th>Reason</th><th>Qty change</th><th>Value</th><th>By</th><th></th></tr></thead>
+            <tbody>
+              {pending.map((a) => (
+                <tr key={a.id}>
+                  <td>{a.productName} <span className="mono" style={{ color: "var(--ink-faint)" }}>{a.sku}</span></td>
+                  <td>{REASON_TYPES[a.reasonType]?.label ?? a.reasonType}{a.note ? ` — ${a.note}` : ""}</td>
+                  <td className="mono">{a.qtyDelta > 0 ? `+${a.qtyDelta}` : a.qtyDelta}</td>
+                  <td className="mono">{formatIDR(a.valuationTotal)}</td>
+                  <td>{a.requestedByName}</td>
+                  <td>
+                    <div style={{ display: "flex", gap: 6, justifyContent: "flex-end" }}>
+                      <button className="btn btn-primary btn-sm" onClick={() => handleApprove(a)}>Approve</button>
+                      <button className="btn btn-danger btn-sm" onClick={() => handleReject(a)}>Reject</button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      <div className="card" style={{ marginBottom: 24, maxWidth: 520 }}>
+        <div className="card-title">Record a stock change</div>
+        <form onSubmit={handleSubmit}>
+          <div className="field" style={{ position: "relative" }}>
+            <label>Product</label>
+            {selectedProduct ? (
+              <div style={{ display: "flex", alignItems: "center", gap: 8, border: "1px solid var(--border)", borderRadius: 8, padding: "9px 12px" }}>
+                <span style={{ flex: 1 }}>{selectedProduct.name} <span className="mono" style={{ color: "var(--ink-faint)" }}>{selectedProduct.sku}</span></span>
+                <button type="button" className="icon-btn" onClick={() => setSelectedProduct(null)}>✕</button>
+              </div>
+            ) : (
+              <>
+                <input type="text" placeholder="Search product name or SKU…" value={productSearch} onChange={(ev) => setProductSearch(ev.target.value)} />
+                {suggestions.length > 0 && (
+                  <div className="card" style={{ position: "absolute", top: "100%", left: 0, right: 0, zIndex: 10, padding: 6, marginTop: 4 }}>
+                    {suggestions.map((p) => (
+                      <div key={p.id} style={{ padding: "8px 10px", cursor: "pointer", borderRadius: 8, display: "flex", justifyContent: "space-between" }}
+                        onMouseDown={() => { setSelectedProduct(p); setProductSearch(""); }}>
+                        <span>{p.name}</span>
+                        <span className="mono" style={{ color: "var(--ink-faint)" }}>{p.sku} · stok {p.stock}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+
+          <div className="field">
+            <label>Reason</label>
+            <select value={reasonType} onChange={(ev) => { setReasonType(ev.target.value); setQtyInput(""); }}>
+              {Object.entries(REASON_TYPES).map(([key, r]) => <option key={key} value={key}>{r.label}</option>)}
+            </select>
+          </div>
+
+          <div className="field">
+            <label>{isOpname ? "Actual counted stock" : "Quantity"}</label>
+            <NumberInput value={qtyInput} onChange={setQtyInput} placeholder="0" />
+            {selectedProduct && qtyInput !== "" && (
+              <div style={{ fontSize: 12, color: qtyDelta < 0 ? "var(--danger)" : "var(--mint)", marginTop: 4 }}>
+                Stock will change by {qtyDelta > 0 ? `+${qtyDelta}` : qtyDelta} (current: {selectedProduct.stock} → new: {Math.max(0, selectedProduct.stock + qtyDelta)})
+                {selectedProduct.cost ? ` · value ${formatIDR(qtyDelta * selectedProduct.cost)}` : ""}
+              </div>
+            )}
+          </div>
+
+          <div className="field">
+            <label>Note (optional)</label>
+            <input value={note} onChange={(ev) => setNote(ev.target.value)} placeholder="e.g. box damaged in delivery" />
+          </div>
+
+          {REASON_TYPES[reasonType].needsApproval && !isManager && (
+            <div style={{ fontSize: 12, color: "var(--amber)", marginBottom: 10 }}>This reason needs manager approval before stock updates.</div>
+          )}
+
+          <button className="btn btn-primary btn-block" type="submit" disabled={submitting || !selectedProduct || qtyInput === ""}>
+            {submitting ? "Submitting…" : "Submit"}
+          </button>
+        </form>
+      </div>
+
+      <div className="card">
+        <div className="card-title">{isManager ? "Adjustment history" : "My adjustment requests"}</div>
+        {loading ? <div className="empty-state">Loading…</div> : decided.length === 0 ? (
+          <div className="empty-state">Nothing here yet.</div>
+        ) : (
+          <table>
+            <thead><tr><th>Product</th><th>Reason</th><th>Qty change</th><th>Value</th><th>Status</th></tr></thead>
+            <tbody>
+              {decided.slice(0, 30).map((a) => (
+                <tr key={a.id}>
+                  <td>{a.productName}</td>
+                  <td>{REASON_TYPES[a.reasonType]?.label ?? a.reasonType}</td>
+                  <td className="mono">{a.qtyDelta > 0 ? `+${a.qtyDelta}` : a.qtyDelta}</td>
+                  <td className="mono">{formatIDR(a.valuationTotal)}</td>
+                  <td><span className={`badge ${a.status === "approved" ? "ok" : "out"}`}>{a.status}</span></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+      {toast && <div className="toast">{toast}</div>}
+    </div>
+  );
+}
+
+// ============================================================================
+// component: Layout — sidebar (desktop) + bottom tab bar (mobile)
+// ============================================================================
+const STAFF_NAV_ITEMS = [
+  { to: "/", end: true, icon: "🛒", short: "Sell", full: "Point of Sale" },
+  { to: "/inventory", icon: "📦", short: "Stock", full: "Inventory" },
+  { to: "/labels", icon: "🏷️", short: "Labels", full: "Print Labels" },
+  { to: "/adjustments", icon: "↩️", short: "Adjust", full: "Adjustments" },
+  { to: "/shift", icon: "💰", short: "Shift", full: "Cash Shift" },
+];
+const MANAGER_NAV_ITEMS = [
+  { to: "/", end: true, icon: "🛒", short: "Sell", full: "Point of Sale" },
+  { to: "/inventory", icon: "📦", short: "Stock", full: "Inventory" },
+  { to: "/labels", icon: "🏷️", short: "Labels", full: "Print Labels" },
+  { to: "/analytics", icon: "📊", short: "Stats", full: "Analytics" },
+  { to: "/adjustments", icon: "↩️", short: "Adjust", full: "Adjustments" },
+  { to: "/shift", icon: "💰", short: "Shift", full: "Cash Shift" },
+  { to: "/export", icon: "📤", short: "Export", full: "Export to Excel" },
+];
+
+function Layout({ children }) {
+  const { profile, isManager, logout } = useAuth();
+  const items = isManager ? MANAGER_NAV_ITEMS : STAFF_NAV_ITEMS;
+
+  return (
+    <div className="app-shell">
+      <aside className="sidebar no-print">
+        <div className="sidebar-brand">
+          <h1>Kirakira</h1>
+          <div className="jp">キラキラ Studio</div>
+        </div>
+        <nav className="sidebar-nav">
+          {items.map((item) => (
+            <NavLink key={item.to} to={item.to} end={item.end}>{item.icon} {item.full}</NavLink>
+          ))}
+        </nav>
+        <div className="sidebar-footer">
+          <div>
+            <div style={{ fontWeight: 600, fontSize: 14 }}>{profile?.name ?? "—"}</div>
+            <span className={`role-badge ${isManager ? "manager" : "staff"}`}>{isManager ? "Manager" : "Staff"}</span>
+          </div>
+          <button className="btn btn-outline btn-sm" onClick={logout}>Sign out</button>
+        </div>
+      </aside>
+
+      <header className="mobile-topbar no-print">
+        <div className="mobile-topbar-brand">
+          <span className="sparkle" />Kirakira
+          <span className={`role-badge ${isManager ? "manager" : "staff"}`} style={{ marginLeft: 8 }}>{isManager ? "Manager" : "Staff"}</span>
+        </div>
+        <button className="icon-btn" onClick={logout} aria-label="Sign out">⎋</button>
+      </header>
+
+      <main className="main-content">{children}</main>
+
+      <nav className="mobile-tabbar no-print">
+        {items.map((item) => (
+          <NavLink key={item.to} to={item.to} end={item.end} className="mobile-tab">
+            <span className="mobile-tab-icon">{item.icon}</span>
+            <span className="mobile-tab-label">{item.short}</span>
+          </NavLink>
+        ))}
+      </nav>
+    </div>
+  );
+}
+
+// ============================================================================
+// page: Login
+// ============================================================================
+function Login() {
+  const { user, loading, login } = useAuth();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  if (!loading && user) return <Navigate to="/" replace />;
+
+  async function handleSubmit(ev) {
+    ev.preventDefault();
+    setError(""); setSubmitting(true);
+    try { await login(email.trim(), password); }
+    catch (err) { setError(friendlyAuthError(err.code)); }
+    finally { setSubmitting(false); }
+  }
+
+  return (
+    <div className="login-screen">
+      <div className="login-card">
+        <h1>Kirakira Studio</h1>
+        <div className="jp">キラキラ</div>
+        <div className="motto">Pretty Things for Everyday</div>
+        <form onSubmit={handleSubmit}>
+          <div className="field">
+            <label htmlFor="email">Email</label>
+            <input id="email" type="email" autoComplete="username" value={email} onChange={(ev) => setEmail(ev.target.value)} required />
+          </div>
+          <div className="field">
+            <label htmlFor="password">Password</label>
+            <input id="password" type="password" autoComplete="current-password" value={password} onChange={(ev) => setPassword(ev.target.value)} required />
+          </div>
+          {error && <div className="form-error">{error}</div>}
+          <button className="btn btn-primary btn-block" type="submit" disabled={submitting}>{submitting ? "Signing in…" : "Sign in"}</button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+function friendlyAuthError(code) {
+  switch (code) {
+    case "auth/invalid-credential":
+    case "auth/wrong-password":
+    case "auth/user-not-found":
+      return "Email or password is incorrect.";
+    case "auth/too-many-requests":
+      return "Too many attempts. Please wait a moment and try again.";
+    default:
+      return "Could not sign in. Please try again.";
+  }
+}
+
+// ============================================================================
+// page: POS
+// ============================================================================
+const CASH_QUICK_BUMPS = [0, 5000, 10000, 20000, 50000];
+
+function POS() {
+  const { user, profile, isManager } = useAuth();
+  const [scanning, setScanning] = useState(false);
+  const [manualCode, setManualCode] = useState("");
+  const [cart, setCart] = useState([]);
+  const [toast, setToast] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState("Cash");
+  const [amountReceivedInput, setAmountReceivedInput] = useState("");
+  const [checkingOut, setCheckingOut] = useState(false);
+  const [lastSale, setLastSale] = useState(null);
+  const [allProducts, setAllProducts] = useState([]);
+  const [suggestOpen, setSuggestOpen] = useState(false);
+
+  const [discountType, setDiscountType] = useState("none");
+  const [discountValue, setDiscountValue] = useState("");
+  const [maxStaffDiscount, setMaxStaffDiscount] = useState(10);
+  const [approval, setApproval] = useState(null);
+  const [approvalModalOpen, setApprovalModalOpen] = useState(false);
+  const [approvalEmail, setApprovalEmail] = useState("");
+  const [approvalPassword, setApprovalPassword] = useState("");
+  const [approvalError, setApprovalError] = useState("");
+  const [approving, setApproving] = useState(false);
+
+  const [reprintOpen, setReprintOpen] = useState(false);
+  const [reprintSales, setReprintSales] = useState([]);
+  const [reprintLoading, setReprintLoading] = useState(false);
+  const [reprintSearch, setReprintSearch] = useState("");
+  const [reprintSale, setReprintSale] = useState(null);
+
+  useEffect(() => {
+    listProducts().then(setAllProducts).catch(() => {});
+    getSettings().then((s) => setMaxStaffDiscount(s.staffMaxDiscountPercent)).catch(() => {});
+  }, []);
+  useEffect(() => { if (!toast) return; const t = setTimeout(() => setToast(""), 2200); return () => clearTimeout(t); }, [toast]);
+  useEffect(() => { setApproval(null); }, [discountType, discountValue]);
+
+  const subtotal = useMemo(() => cart.reduce((s, it) => s + it.listPrice * it.qty, 0), [cart]);
+  const productDiscountTotal = useMemo(() => cart.reduce((s, it) => s + (it.listPrice - it.unitPrice) * it.qty, 0), [cart]);
+  const afterProductDiscount = subtotal - productDiscountTotal;
+
+  const transactionDiscountAmount = useMemo(() => {
+    const value = Number(discountValue) || 0;
+    if (discountType === "none" || value <= 0) return 0;
+    const amt = discountType === "percent" ? Math.round(afterProductDiscount * (value / 100)) : value;
+    return Math.max(0, Math.min(amt, afterProductDiscount));
+  }, [discountType, discountValue, afterProductDiscount]);
+
+  const effectiveDiscountPercent = afterProductDiscount > 0 ? (transactionDiscountAmount / afterProductDiscount) * 100 : 0;
+  const needsApproval = !isManager && discountType !== "none" && Number(discountValue) > 0 && effectiveDiscountPercent > maxStaffDiscount;
+  const canCheckoutDiscount = !needsApproval || !!approval;
+
+  const total = afterProductDiscount - transactionDiscountAmount;
+  const amountReceived = paymentMethod === "Cash" ? (Number(amountReceivedInput) || 0) : total;
+  const changeGiven = paymentMethod === "Cash" ? Math.max(0, amountReceived - total) : 0;
+  const cashShort = paymentMethod === "Cash" && amountReceivedInput !== "" && amountReceived < total;
+
+  async function addBySku(sku) {
+    if (!sku) return;
+    const product = await findProductBySku(sku.trim());
+    if (!product) { setToast(`No product found for SKU "${sku}"`); return; }
+    addToCart(product);
+  }
+
+  function addToCart(product) {
+    const { unitPrice } = getEffectivePrice(product);
+    setCart((prev) => {
+      const existing = prev.find((it) => it.productId === product.id);
+      if (existing) {
+        if (existing.qty >= product.stock) { setToast(`Only ${product.stock} left in stock for ${product.name}`); return prev; }
+        return prev.map((it) => it.productId === product.id ? { ...it, qty: it.qty + 1 } : it);
+      }
+      if (product.stock <= 0) { setToast(`${product.name} is out of stock`); return prev; }
+      return [...prev, {
+        productId: product.id, sku: product.sku, name: product.name,
+        listPrice: product.price, unitPrice, cost: product.cost ?? 0, qty: 1, stock: product.stock,
+      }];
+    });
+    setToast(`Added ${product.name}`);
+  }
+
+  function changeQty(productId, delta) {
+    setCart((prev) => prev.map((it) => it.productId === productId ? { ...it, qty: Math.min(it.stock, Math.max(1, it.qty + delta)) } : it));
+  }
+  function removeLine(productId) { setCart((prev) => prev.filter((it) => it.productId !== productId)); }
+
+  async function handleManualSubmit(ev) { ev.preventDefault(); await addBySku(manualCode); setManualCode(""); }
+
+  function resetDiscount() { setDiscountType("none"); setDiscountValue(""); setApproval(null); }
+
+  async function submitApproval(ev) {
+    ev.preventDefault(); setApproving(true); setApprovalError("");
+    try {
+      const result = await verifyManagerCredentials(approvalEmail, approvalPassword);
+      if (result.ok) {
+        setApproval({ managerName: result.name }); setApprovalModalOpen(false);
+        setApprovalEmail(""); setApprovalPassword(""); setToast(`Discount approved by ${result.name}`);
+      } else {
+        setApprovalError(result.error === "NOT_A_MANAGER" ? "That account is not a manager." : "Incorrect email or password.");
+      }
+    } finally { setApproving(false); }
+  }
+
+  async function handleCheckout() {
+    if (cart.length === 0) return;
+    if (!canCheckoutDiscount) { setToast("This discount needs manager approval first."); return; }
+    if (cashShort) { setToast("Amount received is less than the total."); return; }
+    setCheckingOut(true);
+    try {
+      const transactionDiscount = transactionDiscountAmount > 0
+        ? { type: discountType, value: Number(discountValue) || 0, amount: transactionDiscountAmount } : null;
+      const items = cart.map(({ productId, sku, name, listPrice, unitPrice, cost, qty }) => ({ productId, sku, name, listPrice, unitPrice, cost, qty }));
+      const { receiptNo } = await createSale({
+        items, subtotal, productDiscountTotal, transactionDiscount, total,
+        paymentMethod, amountReceived, changeGiven, discountApproval: approval,
+        cashierUid: user.uid, cashierName: profile?.name ?? user.email,
+      });
+      const sale = {
+        receiptNo, items, subtotal, productDiscountTotal, transactionDiscount, total,
+        paymentMethod, amountReceived, changeGiven, discountApproval: approval,
+        cashierName: profile?.name ?? user.email, createdAt: new Date(),
+      };
+      setLastSale(sale); setCart([]); resetDiscount(); setAmountReceivedInput("");
+      setAllProducts((prev) => prev.map((p) => {
+        const line = sale.items.find((it) => it.productId === p.id);
+        return line ? { ...p, stock: p.stock - line.qty } : p;
+      }));
+      setTimeout(() => window.print(), 150);
+    } catch (err) { setToast(err.message ?? "Checkout failed"); } finally { setCheckingOut(false); }
+  }
+
+  async function openReprint() {
+    setReprintOpen((v) => !v);
+    if (!reprintOpen && reprintSales.length === 0) {
+      setReprintLoading(true);
+      const from = new Date(); from.setDate(from.getDate() - 30);
+      const s = await listSales(isManager ? { from } : { from, cashierUid: user.uid });
+      setReprintSales(s); setReprintLoading(false);
+    }
+  }
+  function printReprint(sale) { setReprintSale(sale); setTimeout(() => window.print(), 150); }
+
+  const suggestions = manualCode.length > 0
+    ? allProducts.filter((p) => p.sku.toLowerCase().includes(manualCode.toLowerCase()) || p.name.toLowerCase().includes(manualCode.toLowerCase())).slice(0, 6)
+    : [];
+  const filteredReprintSales = reprintSales.filter((s) => !reprintSearch || s.receiptNo.toLowerCase().includes(reprintSearch.toLowerCase()));
+
+  return (
+    <div>
+      <div className="page-header no-print">
+        <div>
+          <h2>Point of Sale</h2>
+          <div className="subtitle">Scan a barcode or search by name / SKU to build a sale.</div>
+        </div>
+        <button className="btn btn-outline btn-sm" onClick={openReprint}>🔎 {reprintOpen ? "Hide" : "Reprint a past receipt"}</button>
+      </div>
+
+      {reprintOpen && (
+        <div className="card no-print" style={{ marginBottom: 20 }}>
+          <div className="toolbar" style={{ marginBottom: 10 }}>
+            <input type="text" placeholder="Search receipt no…" value={reprintSearch} onChange={(ev) => setReprintSearch(ev.target.value)} />
+          </div>
+          {reprintLoading ? <div className="empty-state">Loading…</div> : filteredReprintSales.length === 0 ? (
+            <div className="empty-state">No sales found in the last 30 days.</div>
+          ) : (
+            <table>
+              <thead><tr><th>Receipt</th><th>Date</th><th>Total</th><th></th></tr></thead>
+              <tbody>
+                {filteredReprintSales.slice(0, 20).map((s) => (
+                  <tr key={s.id}>
+                    <td className="mono">{s.receiptNo}</td>
+                    <td>{s.createdAt.toLocaleString("id-ID")}</td>
+                    <td className="mono">{formatIDR(s.total)}</td>
+                    <td><button className="btn btn-secondary btn-sm" onClick={() => printReprint(s)}>Print</button></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      )}
+
+      <div className="pos-layout no-print">
+        <div className="card">
+          <div className="pos-scan-row">
+            <button className="btn btn-primary" onClick={() => setScanning((s) => !s)}>{scanning ? "✕ Stop camera" : "📷 Scan barcode"}</button>
+            <form onSubmit={handleManualSubmit} style={{ flex: 1, position: "relative" }}>
+              <input type="text" placeholder="Or type SKU / product name…" value={manualCode}
+                onChange={(ev) => { setManualCode(ev.target.value); setSuggestOpen(true); }}
+                onBlur={() => setTimeout(() => setSuggestOpen(false), 150)} style={{ width: "100%" }} />
+              {suggestOpen && suggestions.length > 0 && (
+                <div className="card" style={{ position: "absolute", top: "110%", left: 0, right: 0, zIndex: 10, padding: 6 }}>
+                  {suggestions.map((p) => (
+                    <div key={p.id} style={{ padding: "8px 10px", cursor: "pointer", borderRadius: 8, display: "flex", justifyContent: "space-between" }}
+                      onMouseDown={() => { addToCart(p); setManualCode(""); setSuggestOpen(false); }}>
+                      <span>{p.name}</span>
+                      <span className="mono" style={{ color: "var(--ink-faint)" }}>{p.sku}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </form>
+          </div>
+
+          {scanning && <BarcodeScanner onDetect={(code) => addBySku(code)} onError={() => setToast("Camera unavailable — check browser permissions.")} />}
+
+          <div className="card-title" style={{ marginTop: 12 }}>Cart</div>
+          {cart.length === 0 ? (
+            <div className="empty-state">Cart is empty. Scan or search a product to begin.</div>
+          ) : (
+            <div>
+              {cart.map((it) => (
+                <div className="cart-line" key={it.productId}>
+                  <div className="info">
+                    <div className="name">{it.name}</div>
+                    <div className="sku">
+                      {it.sku} · {formatIDR(it.unitPrice)}
+                      {it.unitPrice < it.listPrice && <span style={{ textDecoration: "line-through", marginLeft: 6 }}>{formatIDR(it.listPrice)}</span>}
+                    </div>
+                  </div>
+                  <div className="qty-control">
+                    <button onClick={() => changeQty(it.productId, -1)}>−</button>
+                    <span className="mono">{it.qty}</span>
+                    <button onClick={() => changeQty(it.productId, 1)}>+</button>
+                  </div>
+                  <div className="mono" style={{ width: 90, textAlign: "right" }}>{formatIDR(it.unitPrice * it.qty)}</div>
+                  <button className="icon-btn" onClick={() => removeLine(it.productId)}>✕</button>
+                </div>
+              ))}
+
+              <div className="field-row" style={{ marginTop: 16 }}>
+                <div className="field">
+                  <label>Transaction discount</label>
+                  <select value={discountType} onChange={(ev) => setDiscountType(ev.target.value)}>
+                    <option value="none">None</option>
+                    <option value="percent">Percent off</option>
+                    <option value="amount">Amount off</option>
+                  </select>
+                </div>
+                {discountType !== "none" && (
+                  <div className="field">
+                    <label>{discountType === "percent" ? "Percent (%)" : "Amount (IDR)"}</label>
+                    <NumberInput value={discountValue} onChange={setDiscountValue} placeholder="0" />
+                  </div>
+                )}
+              </div>
+              {needsApproval && !approval && (
+                <div className="form-error" style={{ marginTop: -6 }}>
+                  This exceeds your {maxStaffDiscount}% limit — needs manager approval.
+                  <div style={{ marginTop: 6 }}>
+                    <button type="button" className="btn btn-lavender btn-sm" onClick={() => setApprovalModalOpen(true)}>Get manager approval</button>
+                  </div>
+                </div>
+              )}
+              {approval && <div style={{ fontSize: 12, color: "var(--mint)", marginTop: -6, marginBottom: 10 }}>✓ Approved by {approval.managerName}</div>}
+
+              <div className="cart-total-row" style={{ flexDirection: "column", alignItems: "stretch", gap: 4 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, color: "var(--ink-soft)" }}>
+                  <span>Subtotal</span><span className="mono">{formatIDR(subtotal)}</span>
+                </div>
+                {productDiscountTotal > 0 && (
+                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, color: "var(--ink-soft)" }}>
+                    <span>Product discounts</span><span className="mono">-{formatIDR(productDiscountTotal)}</span>
+                  </div>
+                )}
+                {transactionDiscountAmount > 0 && (
+                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, color: "var(--ink-soft)" }}>
+                    <span>Transaction discount</span><span className="mono">-{formatIDR(transactionDiscountAmount)}</span>
+                  </div>
+                )}
+                <div style={{ display: "flex", justifyContent: "space-between", paddingTop: 8, borderTop: "2px dashed var(--border)", marginTop: 4 }}>
+                  <span>Total</span><span className="amount">{formatIDR(total)}</span>
+                </div>
+              </div>
+
+              <div className="field" style={{ marginTop: 16 }}>
+                <label>Payment method</label>
+                <select value={paymentMethod} onChange={(ev) => setPaymentMethod(ev.target.value)}>
+                  <option>Cash</option>
+                  <option>QRIS</option>
+                  <option>Bank Transfer</option>
+                </select>
+              </div>
+
+              {paymentMethod === "Cash" && (
+                <div className="field">
+                  <label>Amount received</label>
+                  <NumberInput value={amountReceivedInput} onChange={setAmountReceivedInput} placeholder={String(total)} />
+                  <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 6 }}>
+                    <button type="button" className="btn btn-secondary btn-sm" onClick={() => setAmountReceivedInput(String(total))}>Pas</button>
+                    {CASH_QUICK_BUMPS.filter((b) => b > 0).map((bump) => (
+                      <button key={bump} type="button" className="btn btn-secondary btn-sm"
+                        onClick={() => setAmountReceivedInput(String(Math.ceil(total / bump) * bump))}>
+                        Round {formatIDR(bump)}
+                      </button>
+                    ))}
+                  </div>
+                  {amountReceivedInput !== "" && (
+                    <div style={{ marginTop: 8, fontSize: 14, fontWeight: 600, color: cashShort ? "var(--danger)" : "var(--mint)" }}>
+                      {cashShort ? `Short by ${formatIDR(total - amountReceived)}` : `Kembalian: ${formatIDR(changeGiven)}`}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <button className="btn btn-primary btn-block" disabled={checkingOut || !canCheckoutDiscount || cashShort} onClick={handleCheckout}>
+                {checkingOut ? "Processing…" : "Checkout & Print Receipt"}
+              </button>
+            </div>
+          )}
+        </div>
+
+        <div className="card">
+          <div className="card-title">Receipt preview</div>
+          {lastSale ? (
+            <>
+              <ReceiptPreview sale={lastSale} />
+              <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
+                <button className="btn btn-secondary" style={{ flex: 1 }} onClick={() => window.print()}>🖨️ Print again</button>
+                <button className="btn btn-primary" style={{ flex: 1 }} onClick={() => setLastSale(null)}>+ New sale</button>
+              </div>
+            </>
+          ) : <div className="empty-state">The last completed sale will preview here.</div>}
+        </div>
+      </div>
+
+      {lastSale && <ReceiptPrintable sale={lastSale} />}
+      {reprintSale && <ReceiptPrintable sale={reprintSale} />}
+      {toast && <div className="toast no-print">{toast}</div>}
+
+      {approvalModalOpen && (
+        <div className="modal-overlay no-print" onMouseDown={(ev) => ev.target === ev.currentTarget && setApprovalModalOpen(false)}>
+          <div className="modal">
+            <div className="modal-header">
+              <h3>Manager approval</h3>
+              <button className="icon-btn" onClick={() => setApprovalModalOpen(false)}>✕</button>
+            </div>
+            <p style={{ fontSize: 13, color: "var(--ink-soft)", marginBottom: 14 }}>A manager needs to sign in here to authorize this discount. This won't sign you out.</p>
+            <form onSubmit={submitApproval}>
+              <div className="field">
+                <label>Manager email</label>
+                <input type="email" value={approvalEmail} onChange={(ev) => setApprovalEmail(ev.target.value)} required />
+              </div>
+              <div className="field">
+                <label>Manager password</label>
+                <input type="password" value={approvalPassword} onChange={(ev) => setApprovalPassword(ev.target.value)} required />
+              </div>
+              {approvalError && <div className="form-error">{approvalError}</div>}
+              <div style={{ display: "flex", gap: 10 }}>
+                <button type="button" className="btn btn-secondary" onClick={() => setApprovalModalOpen(false)}>Cancel</button>
+                <button type="submit" className="btn btn-primary" disabled={approving}>{approving ? "Checking…" : "Approve"}</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ============================================================================
+// page: Inventory
+// ============================================================================
+function Inventory() {
+  const { user, profile, isManager } = useAuth();
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [category, setCategory] = useState("All");
+  const [editing, setEditing] = useState(null);
+  const [toast, setToast] = useState("");
+
+  async function refresh() {
+    setLoading(true);
+    try { setProducts(await listProducts()); } finally { setLoading(false); }
+  }
+  useEffect(() => { refresh(); }, []);
+  useEffect(() => { if (!toast) return; const t = setTimeout(() => setToast(""), 2000); return () => clearTimeout(t); }, [toast]);
+
+  const categories = useMemo(() => ["All", ...new Set(products.map((p) => p.category))], [products]);
+  const filtered = products.filter((p) => {
+    const matchesSearch = !search || p.name.toLowerCase().includes(search.toLowerCase()) || p.sku.toLowerCase().includes(search.toLowerCase());
+    const matchesCategory = category === "All" || p.category === category;
+    return matchesSearch && matchesCategory;
+  });
+
+  async function handleSave(data) {
+    if (editing?.id) {
+      await updateProduct(editing.id, data, { uid: user.uid, name: profile?.name ?? user.email });
+      setToast("Product updated");
+    } else {
+      await createProduct(data);
+      setToast("Product added");
+    }
+    setEditing(null); refresh();
+  }
+
+  async function handleDelete(product) {
+    if (!confirm(`Delete "${product.name}"? This cannot be undone.`)) return;
+    await deleteProduct(product.id); setToast("Product deleted"); refresh();
+  }
+
+  return (
+    <div>
+      <div className="page-header">
+        <div><h2>Inventory</h2><div className="subtitle">{products.length} products tracked</div></div>
+        {isManager && <button className="btn btn-primary" onClick={() => setEditing({})}>+ Add product</button>}
+      </div>
+
+      <div className="toolbar">
+        <input type="text" placeholder="Search name or SKU…" value={search} onChange={(ev) => setSearch(ev.target.value)} />
+        <select value={category} onChange={(ev) => setCategory(ev.target.value)}>{categories.map((c) => <option key={c}>{c}</option>)}</select>
+        <div className="spacer" />
+      </div>
+
+      <div className="table-wrap">
+        <table>
+          <thead>
+            <tr><th>SKU</th><th>Name</th><th>Category</th><th>Price</th><th>Stock</th><th>Status</th>{isManager && <th></th>}</tr>
+          </thead>
+          <tbody>
+            {loading && <tr><td colSpan={7} style={{ textAlign: "center", padding: 32, color: "var(--ink-soft)" }}>Loading inventory…</td></tr>}
+            {!loading && filtered.length === 0 && <tr><td colSpan={7}><div className="empty-state">No products match your search.</div></td></tr>}
+            {filtered.map((p) => {
+              const status = stockStatus(p);
+              const { isDiscounted, unitPrice } = getEffectivePrice(p);
+              return (
+                <tr key={p.id}>
+                  <td className="mono">{p.sku}</td>
+                  <td>{p.name}</td>
+                  <td>{p.category}</td>
+                  <td className="mono">
+                    {isDiscounted ? (
+                      <>
+                        <span style={{ textDecoration: "line-through", color: "var(--ink-faint)", marginRight: 6 }}>{formatIDR(p.price)}</span>
+                        <span style={{ color: "var(--accent)", fontWeight: 700 }}>{formatIDR(unitPrice)}</span>
+                      </>
+                    ) : formatIDR(p.price)}
+                  </td>
+                  <td className="mono">{p.stock.toLocaleString("id-ID")}</td>
+                  <td><span className={`badge ${status}`}>{status === "ok" ? "In stock" : status === "low" ? "Low stock" : "Out of stock"}</span></td>
+                  {isManager && (
+                    <td>
+                      <div style={{ display: "flex", gap: 6, justifyContent: "flex-end" }}>
+                        <button className="btn btn-secondary btn-sm" onClick={() => setEditing(p)}>Edit</button>
+                        <button className="btn btn-danger btn-sm" onClick={() => handleDelete(p)}>Delete</button>
+                      </div>
+                    </td>
+                  )}
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+
+      {editing !== null && (
+        <ProductForm initial={editing.id ? editing : null} onSave={handleSave} onClose={() => setEditing(null)} onDuplicate={(existing) => setEditing(existing)} />
+      )}
+      {toast && <div className="toast">{toast}</div>}
+    </div>
+  );
+}
+
+// ============================================================================
+// page: Labels
+// ============================================================================
+function Labels() {
+  const [products, setProducts] = useState([]);
+  const [search, setSearch] = useState("");
+  const [qty, setQty] = useState({});
+  const [cols, setCols] = useState(5);
+
+  useEffect(() => { listProducts().then(setProducts); }, []);
+
+  const filtered = products.filter((p) => !search || p.name.toLowerCase().includes(search.toLowerCase()) || p.sku.toLowerCase().includes(search.toLowerCase()));
+  function setLineQty(id, value) { setQty((q) => ({ ...q, [id]: Math.max(0, Number(value) || 0) })); }
+  const printQueue = products.flatMap((p) => { const n = qty[p.id] || 0; return Array.from({ length: n }, (_, i) => ({ ...p, _copy: i })); });
+
+  return (
+    <div>
+      <div className="page-header no-print">
+        <div>
+          <h2>Print Labels</h2>
+          <div className="subtitle">Small CODE128 barcode labels sized for item tags (40mm × 24mm by default).</div>
+        </div>
+        <button className="btn btn-primary" disabled={printQueue.length === 0} onClick={() => window.print()}>
+          🖨️ Print {printQueue.length > 0 ? `(${printQueue.length} labels)` : ""}
+        </button>
+      </div>
+
+      <div className="toolbar no-print">
+        <input type="text" placeholder="Search product…" value={search} onChange={(ev) => setSearch(ev.target.value)} />
+        <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "var(--ink-soft)" }}>
+          Columns per sheet
+          <select value={cols} onChange={(ev) => setCols(Number(ev.target.value))}>{[3, 4, 5, 6].map((c) => <option key={c} value={c}>{c}</option>)}</select>
+        </label>
+      </div>
+
+      <div className="table-wrap no-print">
+        <table>
+          <thead><tr><th>SKU</th><th>Name</th><th>Price</th><th style={{ width: 140 }}># of labels</th></tr></thead>
+          <tbody>
+            {filtered.map((p) => (
+              <tr key={p.id}>
+                <td className="mono">{p.sku}</td>
+                <td>{p.name}</td>
+                <td className="mono">{formatIDR(p.price)}</td>
+                <td><input type="number" min="0" style={{ width: 80 }} value={qty[p.id] || ""} placeholder="0" onChange={(ev) => setLineQty(p.id, ev.target.value)} /></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="card no-print" style={{ marginTop: 20 }}>
+        <div className="card-title">Preview</div>
+        {printQueue.length === 0 ? <div className="empty-state">Set a quantity next to a product to preview its label here.</div> : (
+          <div className="label-grid">
+            {printQueue.slice(0, 12).map((p, i) => (
+              <div className="label-card" key={p.id + i}>
+                <div className="label-name">{p.name}</div>
+                <Barcode value={p.sku} height={30} width={1.1} fontSize={8} />
+                <div className="label-price">{formatIDR(p.price)}</div>
+              </div>
+            ))}
+            {printQueue.length > 12 && (
+              <div className="label-card" style={{ display: "flex", alignItems: "center", justifyContent: "center", color: "var(--ink-soft)" }}>
+                +{printQueue.length - 12} more
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      <div className="print-only label-sheet" style={{ "--cols": cols }}>
+        {printQueue.map((p, i) => (
+          <div className="barcode-label" key={p.id + "-" + i}>
+            <div className="bl-name">{p.name}</div>
+            <Barcode value={p.sku} height={28} width={1.1} fontSize={7} />
+            <div className="bl-price">{formatIDR(p.price)}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ============================================================================
+// page: Adjustments (tabs: Void a Sale / Stock Adjustment)
+// ============================================================================
+function Adjustments() {
+  const { isManager } = useAuth();
+  const [tab, setTab] = useState("void");
+  return (
+    <div>
+      <div className="page-header">
+        <div>
+          <h2>Adjustments</h2>
+          <div className="subtitle">
+            {isManager ? "Void sales and record stock changes — approve requests submitted by staff." : "Void a wrongly-entered sale, or report stock changes like damage, loss, or returns."}
+          </div>
+        </div>
+      </div>
+      <div className="toolbar">
+        <button className={`btn ${tab === "void" ? "btn-primary" : "btn-secondary"} btn-sm`} onClick={() => setTab("void")}>Void a Sale</button>
+        <button className={`btn ${tab === "stock" ? "btn-primary" : "btn-secondary"} btn-sm`} onClick={() => setTab("stock")}>Stock Adjustment</button>
+      </div>
+      {tab === "void" ? <VoidSalePanel /> : <StockAdjustmentPanel />}
+    </div>
+  );
+}
+
+// ============================================================================
+// page: Shift
+// ============================================================================
+function Shift() {
+  const { user, profile, isManager } = useAuth();
+  const [shift, setShift] = useState(undefined);
+  const [openingCash, setOpeningCash] = useState("");
+  const [actualCash, setActualCash] = useState("");
+  const [live, setLive] = useState(null);
+  const [closing, setClosing] = useState(false);
+  const [result, setResult] = useState(null);
+  const [toast, setToast] = useState("");
+  const [history, setHistory] = useState([]);
+
+  async function refresh() {
+    try {
+      const s = await getOpenShift(user.uid);
+      setShift(s);
+      if (s) setLive(await computeExpectedCash(s));
+      setHistory(isManager ? await listShifts({}) : await listShifts({ staffUid: user.uid }));
+    } catch (err) {
+      setShift(null);
+      setToast(err.message ?? "Could not load shift data. Check your Firestore rules & indexes.");
+    }
+  }
+  useEffect(() => { refresh(); }, []);
+  useEffect(() => { if (!toast) return; const t = setTimeout(() => setToast(""), 2200); return () => clearTimeout(t); }, [toast]);
+
+  async function handleOpen(ev) {
+    ev.preventDefault();
+    await openShift({ uid: user.uid, name: profile?.name ?? user.email, openingCash: Number(openingCash) || 0 });
+    setOpeningCash(""); setToast("Shift opened"); refresh();
+  }
+
+  async function handleClose(ev) {
+    ev.preventDefault(); setClosing(true);
+    try {
+      const r = await closeShift(shift, { actualCash: Number(actualCash) || 0 });
+      setResult(r); setToast("Shift closed"); setActualCash(""); refresh();
+    } finally { setClosing(false); }
+  }
+
+  if (shift === undefined) return <div className="empty-state">Loading…</div>;
+
+  return (
+    <div>
+      <div className="page-header">
+        <div><h2>Cash Shift</h2><div className="subtitle">Track a starting cash float and reconcile it at the end of your shift.</div></div>
+      </div>
+
+      {!shift ? (
+        <div className="card" style={{ maxWidth: 420 }}>
+          <div className="card-title">Open a shift</div>
+          <form onSubmit={handleOpen}>
+            <div className="field"><label>Starting cash in drawer</label><NumberInput value={openingCash} onChange={setOpeningCash} placeholder="0" /></div>
+            <button className="btn btn-primary btn-block" type="submit">Open shift</button>
+          </form>
+        </div>
+      ) : (
+        <div className="card" style={{ maxWidth: 480, marginBottom: 24 }}>
+          <div className="card-title">Shift in progress — since {shift.openedAt.toLocaleString("id-ID")}</div>
+          {live && (
+            <div style={{ display: "flex", flexDirection: "column", gap: 6, fontSize: 14, marginBottom: 16 }}>
+              <div style={{ display: "flex", justifyContent: "space-between" }}><span>Opening cash</span><span className="mono">{formatIDR(live.openingCash)}</span></div>
+              <div style={{ display: "flex", justifyContent: "space-between" }}><span>Cash sales so far</span><span className="mono">+{formatIDR(live.cashSalesTotal)}</span></div>
+              {live.cashVoidsTotal > 0 && <div style={{ display: "flex", justifyContent: "space-between" }}><span>Cash voids</span><span className="mono">-{formatIDR(live.cashVoidsTotal)}</span></div>}
+              <div style={{ display: "flex", justifyContent: "space-between", paddingTop: 8, borderTop: "2px dashed var(--border)", fontWeight: 700 }}>
+                <span>Expected cash now</span><span className="mono">{formatIDR(live.expectedCash)}</span>
+              </div>
+            </div>
+          )}
+          <form onSubmit={handleClose}>
+            <div className="field"><label>Actual cash counted (to close shift)</label><NumberInput value={actualCash} onChange={setActualCash} placeholder="0" /></div>
+            <button className="btn btn-danger btn-block" type="submit" disabled={closing}>{closing ? "Closing…" : "Close shift"}</button>
+          </form>
+        </div>
+      )}
+
+      {result && (
+        <div className="card" style={{ maxWidth: 480, marginBottom: 24, borderColor: result.variance === 0 ? "var(--mint)" : "var(--danger)" }}>
+          <div className="card-title">Last shift result</div>
+          <div style={{ fontSize: 14 }}>Expected: <span className="mono">{formatIDR(result.expectedCash)}</span></div>
+          <div style={{ fontSize: 14, fontWeight: 700, color: result.variance === 0 ? "var(--mint)" : "var(--danger)" }}>
+            {result.variance === 0 ? "Balanced ✓" : result.variance > 0 ? `Over by ${formatIDR(result.variance)}` : `Short by ${formatIDR(-result.variance)}`}
+          </div>
+        </div>
+      )}
+
+      <div className="card">
+        <div className="card-title">{isManager ? "All shift history" : "My shift history"}</div>
+        {history.length === 0 ? <div className="empty-state">No closed shifts yet.</div> : (
+          <table>
+            <thead><tr>{isManager && <th>Staff</th>}<th>Opened</th><th>Expected</th><th>Actual</th><th>Variance</th></tr></thead>
+            <tbody>
+              {history.filter((h) => h.status === "closed").map((h) => (
+                <tr key={h.id}>
+                  {isManager && <td>{h.staffName}</td>}
+                  <td>{h.openedAt.toLocaleDateString("id-ID")}</td>
+                  <td className="mono">{formatIDR(h.expectedCash ?? 0)}</td>
+                  <td className="mono">{formatIDR(h.actualCash ?? 0)}</td>
+                  <td><span className={`badge ${h.variance === 0 ? "ok" : "out"}`}>{h.variance > 0 ? `+${formatIDR(h.variance)}` : formatIDR(h.variance ?? 0)}</span></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+      {toast && <div className="toast">{toast}</div>}
+    </div>
+  );
+}
+
+// ============================================================================
+// small helper: lightweight bar chart (replaces recharts in the single-file
+// build — recharts pulls in a large dependency tree that's fragile to load
+// from a CDN with no bundler; a plain CSS bar chart is a fair trade for a
+// single revenue-by-day view).
+// ============================================================================
+function SimpleBarChart({ data }) {
+  const max = Math.max(1, ...data.map((d) => d.revenue));
+  return (
+    <div style={{ display: "flex", alignItems: "flex-end", gap: 4, height: 220, padding: "0 4px" }}>
+      {data.map((d) => (
+        <div key={d.date} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+          <div style={{ fontSize: 10, color: "var(--ink-faint)" }}>{d.revenue > 0 ? Math.round(d.revenue / 1000) + "k" : ""}</div>
+          <div title={formatIDR(d.revenue)} style={{
+            width: "100%", background: "var(--accent)", borderRadius: "4px 4px 0 0",
+            height: Math.max(2, (d.revenue / max) * 170),
+          }} />
+          <div style={{ fontSize: 10, color: "var(--ink-soft)" }}>{d.date}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ============================================================================
+// page: AnalyticsManager
+// ============================================================================
+function AnalyticsManager() {
+  const [preset, setPreset] = useState("30 days");
+  const [custom, setCustom] = useState({});
+  const [category, setCategory] = useState("All");
+  const [staffName, setStaffName] = useState("All");
+
+  const [sales, setSales] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [corrections, setCorrections] = useState([]);
+  const [adjustments, setAdjustments] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const { from, to } = resolveRange(preset, custom);
+    setLoading(true);
+    Promise.all([
+      listSales({ from, to }), listProducts(),
+      listCorrections({ status: "approved" }), listAdjustments({ status: "approved" }),
+    ]).then(([s, p, c, a]) => {
+      const inRange = (d) => (!from || d >= from) && (!to || d <= to);
+      setSales(s); setProducts(p);
+      setCorrections(c.filter((x) => inRange(x.createdAt)));
+      setAdjustments(a.filter((x) => inRange(x.createdAt)));
+    }).finally(() => setLoading(false));
+  }, [preset, custom.from, custom.to]);
+
+  const categoryMap = useMemo(() => Object.fromEntries(products.map((p) => [p.sku, p.category])), [products]);
+  const categories = useMemo(() => ["All", ...new Set(products.map((p) => p.category))], [products]);
+  const staffNames = useMemo(() => ["All", ...new Set(sales.map((s) => s.cashierName))], [sales]);
+
+  const lines = useMemo(() => sales.flatMap((s) =>
+    s.items.map((it) => ({
+      saleId: s.id, createdAt: s.createdAt, cashierName: s.cashierName,
+      category: categoryMap[it.sku] ?? "Uncategorized", name: it.name,
+      listPrice: it.listPrice, unitPrice: it.unitPrice, cost: it.cost, qty: it.qty,
+    }))
+  ), [sales, categoryMap]);
+
+  const filteredLines = useMemo(() => lines.filter((l) =>
+    (category === "All" || l.category === category) && (staffName === "All" || l.cashierName === staffName)
+  ), [lines, category, staffName]);
+
+  const stats = useMemo(() => computeAnalyticsStats(filteredLines), [filteredLines]);
+  const paymentBreakdown = useMemo(
+    () => computePaymentBreakdown(sales.filter((s) => staffName === "All" || s.cashierName === staffName)),
+    [sales, staffName]
+  );
+  const lowStock = useMemo(() => products.filter((p) => stockStatus(p) !== "ok").sort((a, b) => a.stock - b.stock), [products]);
+
+  const pl = useMemo(() => {
+    const grossSales = sales.reduce((s, sale) => s + sale.subtotal, 0);
+    const productDiscountTotal = sales.reduce((s, sale) => s + sale.productDiscountTotal, 0);
+    const transactionDiscountTotal = sales.reduce((s, sale) => s + (sale.transactionDiscount?.amount ?? 0), 0);
+    const netRevenue = sales.reduce((s, sale) => s + sale.total, 0);
+    const cogs = lines.reduce((s, l) => s + l.cost * l.qty, 0);
+    const grossProfit = netRevenue - cogs;
+    const voidedRevenue = corrections.reduce((s, c) => s + c.total, 0);
+    const voidedCogs = corrections.reduce((s, c) => s + (c.items ?? []).reduce((a, it) => a + (it.cost ?? 0) * it.qty, 0), 0);
+    const voidedProfit = voidedRevenue - voidedCogs;
+    const stockLossValue = adjustments.filter((a) => a.valuationTotal < 0).reduce((s, a) => s + Math.abs(a.valuationTotal), 0);
+    const stockGainValue = adjustments.filter((a) => a.valuationTotal > 0).reduce((s, a) => s + a.valuationTotal, 0);
+    const netRevenueAfterVoids = netRevenue - voidedRevenue;
+    const netProfit = grossProfit - voidedProfit - stockLossValue + stockGainValue;
+    return { grossSales, productDiscountTotal, transactionDiscountTotal, netRevenue, cogs, grossProfit, voidedRevenue, voidedProfit, stockLossValue, stockGainValue, netRevenueAfterVoids, netProfit };
+  }, [sales, lines, corrections, adjustments]);
+
+  return (
+    <div>
+      <div className="page-header">
+        <div><h2>Analytics — Manager</h2><div className="subtitle">Store-wide performance, filterable by period, category, and staff</div></div>
+      </div>
+
+      <div className="card" style={{ marginBottom: 20 }}>
+        <div className="toolbar" style={{ marginBottom: 0 }}>
+          <DateRangeFilter preset={preset} onPresetChange={setPreset} custom={custom} onCustomChange={setCustom} />
+          <select value={category} onChange={(ev) => setCategory(ev.target.value)}>{categories.map((c) => <option key={c}>{c}</option>)}</select>
+          <select value={staffName} onChange={(ev) => setStaffName(ev.target.value)}>{staffNames.map((s) => <option key={s}>{s}</option>)}</select>
+        </div>
+      </div>
+
+      {loading ? <div className="empty-state">Loading analytics…</div> : (
+        <>
+          <div className="stat-grid">
+            <StatCard label="Revenue (filtered)" value={formatIDR(stats.totalRevenue)} />
+            <StatCard label="Transactions" value={stats.txCount} />
+            <StatCard label="Items sold" value={stats.itemsSold} />
+            <StatCard label="Avg. basket" value={formatIDR(stats.avgBasket)} />
+          </div>
+
+          <div className="card" style={{ marginBottom: 24 }}>
+            <div className="card-title">Profit &amp; Loss — whole store, this date range</div>
+            <div style={{ fontSize: 13, color: "var(--ink-soft)", marginBottom: 12 }}>
+              Cost figures use each product's cost (harga modal) at the moment it was sold, not today's cost. This card ignores the category/staff filters above — discounts and voids apply per-transaction, not per-item.
+            </div>
+            <PLTable rows={[
+              ["Gross sales (harga jual, list price)", pl.grossSales],
+              ["− Product discounts", -pl.productDiscountTotal, true],
+              ["− Transaction discounts", -pl.transactionDiscountTotal, true],
+              ["= Revenue", pl.netRevenue, false, true],
+              ["− Cost of goods sold (harga modal)", -pl.cogs, true],
+              ["= Gross profit", pl.grossProfit, false, true],
+              ["− Voided sales (revenue)", -pl.voidedRevenue, true],
+              ["− Voided profit", -pl.voidedProfit, true],
+              ["− Stock losses (damaged / lost / opname)", -pl.stockLossValue, true],
+              ["+ Stock gains (opname surplus)", pl.stockGainValue, true],
+              ["= Net revenue after voids", pl.netRevenueAfterVoids, false, true],
+              ["= Net profit", pl.netProfit, false, true],
+            ]} />
+          </div>
+
+          <div className="card" style={{ marginBottom: 24 }}>
+            <div className="card-title">Revenue by day{category !== "All" || staffName !== "All" ? " (filtered)" : ""}</div>
+            <SimpleBarChart data={stats.byDay} />
+          </div>
+
+          <div className="two-col-grid">
+            <div className="card">
+              <div className="card-title">Top products{category !== "All" ? ` — ${category}` : ""}</div>
+              {stats.topProducts.length === 0 ? <div className="empty-state">No sales in this filter.</div> : (
+                <table>
+                  <thead><tr><th>Product</th><th>Qty sold</th><th>Revenue</th><th>Profit</th></tr></thead>
+                  <tbody>
+                    {stats.topProducts.map((p) => (
+                      <tr key={p.name}><td>{p.name}</td><td className="mono">{p.qty}</td><td className="mono">{formatIDR(p.revenue)}</td><td className="mono">{formatIDR(p.profit)}</td></tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+            <div className="card">
+              <div className="card-title">Sales by staff</div>
+              <table>
+                <thead><tr><th>Staff</th><th>Transactions</th><th>Revenue</th></tr></thead>
+                <tbody>{stats.byStaff.map((s) => <tr key={s.name}><td>{s.name}</td><td className="mono">{s.count}</td><td className="mono">{formatIDR(s.revenue)}</td></tr>)}</tbody>
+              </table>
+            </div>
+          </div>
+
+          <div className="card" style={{ marginTop: 24 }}>
+            <div className="card-title">Payment methods{staffName !== "All" ? ` — ${staffName}` : ""}</div>
+            {paymentBreakdown.length === 0 ? <div className="empty-state">No sales in this filter.</div> : (
+              <table>
+                <thead><tr><th>Method</th><th>Transactions</th><th>Revenue</th></tr></thead>
+                <tbody>{paymentBreakdown.map((p) => <tr key={p.method}><td>{p.method}</td><td className="mono">{p.count}</td><td className="mono">{formatIDR(p.revenue)}</td></tr>)}</tbody>
+              </table>
+            )}
+          </div>
+
+          <div className="card" style={{ marginTop: 24 }}>
+            <div className="card-title">Stock alerts</div>
+            {lowStock.length === 0 ? <div className="empty-state">All products are healthily stocked.</div> : (
+              <table>
+                <thead><tr><th>SKU</th><th>Product</th><th>Stock left</th><th>Status</th></tr></thead>
+                <tbody>
+                  {lowStock.map((p) => (
+                    <tr key={p.id}>
+                      <td className="mono">{p.sku}</td><td>{p.name}</td><td className="mono">{p.stock}</td>
+                      <td><span className={`badge ${stockStatus(p)}`}>{stockStatus(p) === "low" ? "Low stock" : "Out of stock"}</span></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+function StatCard({ label, value }) {
+  return <div className="stat-card"><div className="label">{label}</div><div className="value">{value}</div></div>;
+}
+function PLTable({ rows }) {
+  return (
+    <table>
+      <tbody>
+        {rows.map(([label, value, muted, strong], i) => (
+          <tr key={i} style={strong ? { fontWeight: 700 } : undefined}>
+            <td style={{ color: muted ? "var(--ink-soft)" : "var(--ink)", paddingLeft: muted ? 24 : undefined }}>{label}</td>
+            <td className="mono" style={{ textAlign: "right", color: value < 0 ? "var(--danger)" : undefined }}>{formatIDR(value)}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}
+
+function computeAnalyticsStats(lines) {
+  const totalRevenue = lines.reduce((s, l) => s + l.unitPrice * l.qty, 0);
+  const itemsSold = lines.reduce((s, l) => s + l.qty, 0);
+  const txCount = new Set(lines.map((l) => l.saleId)).size;
+  const avgBasket = txCount ? totalRevenue / txCount : 0;
+
+  const byDayMap = new Map();
+  lines.forEach((l) => { const key = l.createdAt.toLocaleDateString("en-CA"); byDayMap.set(key, (byDayMap.get(key) || 0) + l.unitPrice * l.qty); });
+  const byDay = [...byDayMap.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([date, revenue]) => ({ date: date.slice(5), revenue }));
+
+  const productMap = new Map();
+  lines.forEach((l) => {
+    const cur = productMap.get(l.name) || { name: l.name, qty: 0, revenue: 0, profit: 0 };
+    cur.qty += l.qty; cur.revenue += l.unitPrice * l.qty; cur.profit += (l.unitPrice - l.cost) * l.qty;
+    productMap.set(l.name, cur);
+  });
+  const topProducts = [...productMap.values()].sort((a, b) => b.revenue - a.revenue).slice(0, 8);
+
+  const staffMap = new Map();
+  lines.forEach((l) => {
+    const cur = staffMap.get(l.cashierName) || { name: l.cashierName, saleIds: new Set(), revenue: 0 };
+    cur.saleIds.add(l.saleId); cur.revenue += l.unitPrice * l.qty;
+    staffMap.set(l.cashierName, cur);
+  });
+  const byStaff = [...staffMap.values()].map((s) => ({ name: s.name, count: s.saleIds.size, revenue: s.revenue })).sort((a, b) => b.revenue - a.revenue);
+
+  return { totalRevenue, txCount, itemsSold, avgBasket, byDay, topProducts, byStaff };
+}
+
+function computePaymentBreakdown(sales) {
+  const map = new Map();
+  sales.forEach((s) => {
+    const cur = map.get(s.paymentMethod) || { method: s.paymentMethod, count: 0, revenue: 0 };
+    cur.count += 1; cur.revenue += s.total;
+    map.set(s.paymentMethod, cur);
+  });
+  return [...map.values()].sort((a, b) => b.revenue - a.revenue);
+}
+
+// ============================================================================
+// page: Export
+// ============================================================================
+function Export() {
+  const [preset, setPreset] = useState("30 days");
+  const [custom, setCustom] = useState({});
+  const [exporting, setExporting] = useState(false);
+  const [toast, setToast] = useState("");
+
+  const [maxDiscount, setMaxDiscount] = useState(10);
+  const [savingSettings, setSavingSettings] = useState(false);
+  const [auditLog, setAuditLog] = useState([]);
+
+  useEffect(() => {
+    getSettings().then((s) => setMaxDiscount(s.staffMaxDiscountPercent)).catch(() => {});
+    getDocs(query(collection(db, "auditLog"), orderBy("createdAt", "desc"), limit(20)))
+      .then((snap) => setAuditLog(snap.docs.map((d) => { const data = d.data(); return { id: d.id, ...data, createdAt: data.createdAt?.toDate?.() ?? new Date() }; })))
+      .catch(() => {});
+  }, []);
+
+  async function handleSaveSettings() {
+    setSavingSettings(true);
+    try { await updateSettings({ staffMaxDiscountPercent: Number(maxDiscount) || 0 }); setToast("Settings saved."); }
+    finally { setSavingSettings(false); }
+  }
+
+  async function handleExport() {
+    setExporting(true);
+    try {
+      const { from, to } = resolveRange(preset, custom);
+      const [products, sales, corrections, adjustments, shifts] = await Promise.all([
+        listProducts(), listSales({ from, to }), listCorrections({}), listAdjustments({}), listShifts({ max: 500 }),
+      ]);
+
+      const wb = XLSX.utils.book_new();
+
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(products.map((p) => ({
+        SKU: p.sku, Name: p.name, Category: p.category,
+        "Price (IDR)": p.price, "Cost (IDR)": p.cost ?? 0, "Margin (IDR)": (p.price ?? 0) - (p.cost ?? 0),
+        "Stock on hand": p.stock, "Low stock threshold": p.lowStockThreshold, Status: stockStatus(p),
+        Discount: p.discountType && p.discountType !== "none" ? `${p.discountType === "percent" ? p.discountValue + "%" : formatIDR(p.discountValue)}` : "",
+      }))), "Products");
+
+      const grossSales = sales.reduce((s, sale) => s + sale.subtotal, 0);
+      const productDiscountTotal = sales.reduce((s, sale) => s + sale.productDiscountTotal, 0);
+      const transactionDiscountTotal = sales.reduce((s, sale) => s + (sale.transactionDiscount?.amount ?? 0), 0);
+      const netRevenue = sales.reduce((s, sale) => s + sale.total, 0);
+      const cogs = sales.reduce((s, sale) => s + sale.items.reduce((a, it) => a + it.cost * it.qty, 0), 0);
+      const grossProfit = netRevenue - cogs;
+      const inRange = (d) => (!from || d >= from) && (!to || d <= to);
+      const correctionsInRange = corrections.filter((c) => c.status === "approved" && inRange(c.createdAt));
+      const adjustmentsInRange = adjustments.filter((a) => a.status === "approved" && inRange(a.createdAt));
+      const voidedRevenue = correctionsInRange.reduce((s, c) => s + c.total, 0);
+      const voidedCogs = correctionsInRange.reduce((s, c) => s + (c.items ?? []).reduce((a, it) => a + (it.cost ?? 0) * it.qty, 0), 0);
+      const voidedProfit = voidedRevenue - voidedCogs;
+      const stockLossValue = adjustmentsInRange.filter((a) => a.valuationTotal < 0).reduce((s, a) => s + Math.abs(a.valuationTotal), 0);
+      const stockGainValue = adjustmentsInRange.filter((a) => a.valuationTotal > 0).reduce((s, a) => s + a.valuationTotal, 0);
+
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet([
+        { Line: "Gross sales (harga jual, list price)", "Amount (IDR)": grossSales },
+        { Line: "− Product discounts", "Amount (IDR)": -productDiscountTotal },
+        { Line: "− Transaction discounts", "Amount (IDR)": -transactionDiscountTotal },
+        { Line: "= Revenue", "Amount (IDR)": netRevenue },
+        { Line: "− Cost of goods sold (harga modal)", "Amount (IDR)": -cogs },
+        { Line: "= Gross profit", "Amount (IDR)": grossProfit },
+        { Line: "− Voided sales (revenue)", "Amount (IDR)": -voidedRevenue },
+        { Line: "− Voided profit", "Amount (IDR)": -voidedProfit },
+        { Line: "− Stock losses (damaged/lost/opname)", "Amount (IDR)": -stockLossValue },
+        { Line: "+ Stock gains (opname surplus)", "Amount (IDR)": stockGainValue },
+        { Line: "= Net revenue after voids", "Amount (IDR)": netRevenue - voidedRevenue },
+        { Line: "= Net profit", "Amount (IDR)": grossProfit - voidedProfit - stockLossValue + stockGainValue },
+      ]), "Profit & Loss");
+
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(sales.map((s) => ({
+        Receipt: s.receiptNo, Date: s.createdAt.toLocaleString("id-ID"), Cashier: s.cashierName,
+        "Payment method": s.paymentMethod, "Items count": s.items.reduce((a, it) => a + it.qty, 0),
+        "Subtotal (IDR)": s.subtotal, "Discount (IDR)": s.productDiscountTotal + (s.transactionDiscount?.amount ?? 0),
+        "Total (IDR)": s.total, "Amount received (IDR)": s.amountReceived, "Change given (IDR)": s.changeGiven,
+        "Discount approved by": s.discountApproval?.managerName ?? "",
+      }))), "Sales");
+
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(sales.flatMap((s) => s.items.map((it) => ({
+        Receipt: s.receiptNo, Date: s.createdAt.toLocaleString("id-ID"), Cashier: s.cashierName, SKU: it.sku, Product: it.name, Qty: it.qty,
+        "List price (IDR)": it.listPrice, "Unit price sold (IDR)": it.unitPrice, "Cost (IDR)": it.cost,
+        "Line revenue (IDR)": it.unitPrice * it.qty, "Line profit (IDR)": (it.unitPrice - it.cost) * it.qty,
+      })))), "Sale Line Items");
+
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(corrections.map((c) => ({
+        "Original receipt": c.originalReceiptNo, "Requested at": c.createdAt.toLocaleString("id-ID"), "Requested by": c.requestedByName,
+        Role: c.requestedByRole, Reason: c.reason, "Amount (IDR)": c.total, "Payment method": c.paymentMethod ?? "",
+        Status: c.status, "Decided by": c.decidedByName ?? "", "Decided at": c.decidedAt ? c.decidedAt.toLocaleString("id-ID") : "",
+      }))), "Void Corrections");
+
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(adjustments.map((a) => ({
+        "Requested at": a.createdAt.toLocaleString("id-ID"), SKU: a.sku, Product: a.productName,
+        Reason: REASON_TYPES[a.reasonType]?.label ?? a.reasonType, "Qty reported": a.qtyReported, "Stock change": a.qtyDelta,
+        "Cost at time (IDR)": a.costAtTime, "Value (IDR)": a.valuationTotal, Note: a.note ?? "",
+        "Requested by": a.requestedByName, Role: a.requestedByRole, Status: a.status, "Decided by": a.decidedByName ?? "",
+      }))), "Stock Adjustments");
+
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(shifts.map((sh) => ({
+        Staff: sh.staffName, Opened: sh.openedAt.toLocaleString("id-ID"), Closed: sh.closedAt ? sh.closedAt.toLocaleString("id-ID") : "",
+        Status: sh.status, "Opening cash (IDR)": sh.openingCash, "Cash sales (IDR)": sh.cashSalesTotal ?? "",
+        "Expected cash (IDR)": sh.expectedCash ?? "", "Actual cash (IDR)": sh.actualCash ?? "", "Variance (IDR)": sh.variance ?? "",
+      }))), "Cash Shifts");
+
+      const stamp = new Date().toISOString().slice(0, 10);
+      XLSX.writeFile(wb, `kirakira-export-${preset.replace(/\s+/g, "-").toLowerCase()}-${stamp}.xlsx`);
+      setToast("Export downloaded.");
+    } catch (err) { setToast(err.message ?? "Export failed."); } finally { setExporting(false); }
+  }
+
+  return (
+    <div>
+      <div className="page-header">
+        <div><h2>Export to Excel</h2><div className="subtitle">Download a workbook for accounting, business review, or planning.</div></div>
+      </div>
+
+      <div className="card" style={{ marginBottom: 20 }}>
+        <div className="card-title">Sales date range</div>
+        <div style={{ fontSize: 13, color: "var(--ink-soft)", marginBottom: 12 }}>
+          Applies to Sales and Sale Line Items. Products, Void Corrections, Stock Adjustments, and Cash Shifts always export in full for audit continuity.
+        </div>
+        <DateRangeFilter preset={preset} onPresetChange={setPreset} custom={custom} onCustomChange={setCustom} />
+        <button className="btn btn-primary" style={{ marginTop: 12 }} onClick={handleExport} disabled={exporting}>{exporting ? "Preparing file…" : "⬇️ Download .xlsx"}</button>
+      </div>
+
+      <div className="card" style={{ marginBottom: 20, maxWidth: 420 }}>
+        <div className="card-title">POS settings</div>
+        <div className="field"><label>Staff discount limit without approval (%)</label><input type="number" min="0" max="100" value={maxDiscount} onChange={(ev) => setMaxDiscount(ev.target.value)} /></div>
+        <button className="btn btn-secondary" onClick={handleSaveSettings} disabled={savingSettings}>{savingSettings ? "Saving…" : "Save"}</button>
+      </div>
+
+      <div className="card">
+        <div className="card-title">Recent price / stock edits</div>
+        {auditLog.length === 0 ? <div className="empty-state">No direct catalogue edits logged yet.</div> : (
+          <table>
+            <thead><tr><th>When</th><th>Product</th><th>By</th><th>Before</th><th>After</th></tr></thead>
+            <tbody>
+              {auditLog.map((a) => (
+                <tr key={a.id}>
+                  <td>{a.createdAt.toLocaleString("id-ID")}</td><td>{a.productName}</td><td>{a.actorName}</td>
+                  <td className="mono">P:{formatIDR(a.before.price ?? 0)} C:{formatIDR(a.before.cost ?? 0)} S:{a.before.stock ?? 0}</td>
+                  <td className="mono">P:{formatIDR(a.after.price ?? 0)} C:{formatIDR(a.after.cost ?? 0)} S:{a.after.stock ?? 0}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+      {toast && <div className="toast">{toast}</div>}
+    </div>
+  );
+}
+
+// ============================================================================
+// App shell — routing + guards
+// ============================================================================
+function RequireAuth({ children }) {
+  const { user, loading } = useAuth();
+  if (loading) return <FullScreenLoader />;
+  if (!user) return <Navigate to="/login" replace />;
+  return children;
+}
+
+function RequireManager({ children }) {
+  const { isManager, loading } = useAuth();
+  if (loading) return <FullScreenLoader />;
+  if (!isManager) return <Navigate to="/" replace />;
+  return children;
+}
+
+function FullScreenLoader() {
+  return <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100vh", color: "var(--ink-soft)" }}>Loading…</div>;
+}
+
+function App() {
+  return (
+    <HashRouter>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route
+          path="/*"
+          element={
+            <RequireAuth>
+              <Layout>
+                <Routes>
+                  <Route path="/" element={<POS />} />
+                  <Route path="/inventory" element={<Inventory />} />
+                  <Route path="/labels" element={<Labels />} />
+                  <Route path="/analytics" element={<RequireManager><AnalyticsManager /></RequireManager>} />
+                  <Route path="/adjustments" element={<Adjustments />} />
+                  <Route path="/shift" element={<Shift />} />
+                  <Route path="/export" element={<RequireManager><Export /></RequireManager>} />
+                  <Route path="*" element={<Navigate to="/" replace />} />
+                </Routes>
+              </Layout>
+            </RequireAuth>
+          }
+        />
+      </Routes>
+    </HashRouter>
+  );
+}
+
+// ============================================================================
+// Render
+// ============================================================================
+const root = createRoot(document.getElementById("root"));
+root.render(
+  <React.StrictMode>
+    <AuthProvider>
+      <App />
+    </AuthProvider>
+  </React.StrictMode>
+);
+
+</script>
+</body>
+</html>
