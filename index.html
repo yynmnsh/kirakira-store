@@ -388,7 +388,7 @@ import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from
 import {
   getFirestore, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, addDoc,
   collection, query, where, orderBy, limit, serverTimestamp, runTransaction,
-  onSnapshot, Timestamp,
+  onSnapshot, Timestamp, writeBatch
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
 import JsBarcode from "https://esm.sh/jsbarcode@3.11.6";
@@ -2669,6 +2669,50 @@ function Export() {
   const [maxDiscount, setMaxDiscount] = useState(10);
   const [savingSettings, setSavingSettings] = useState(false);
   const [auditLog, setAuditLog] = useState([]);
+  
+  const [wiping, setWiping] = useState(false);
+
+   async function handleWipeTransactions() {
+    if (!confirm("⚠️ WARNING: This will permanently delete ALL sales transactions. This action cannot be undone. Are you sure?")) return;
+    
+    if (prompt("Click 'DELETE' to confirm:") !== "DELETE") {
+      setToast("Action cancelled.");
+      return;
+    }
+   
+    setWiping(true);
+    try {
+      const salesSnap = await getDocs(collection(db, "sales"));
+      
+      if (salesSnap.empty) {
+        setToast("No transactions to delete.");
+        setWiping(false);
+        return;
+      }
+   
+      const batches = [];
+      let currentBatch = writeBatch(db);
+      let count = 0;
+   
+      salesSnap.docs.forEach((d) => {
+        currentBatch.delete(d.ref);
+        count++;
+        if (count === 500) {
+          batches.push(currentBatch.commit());
+          currentBatch = writeBatch(db);
+          count = 0;
+        }
+      });
+      if (count > 0) batches.push(currentBatch.commit());
+   
+      await Promise.all(batches);
+      setToast(`${salesSnap.size} transactions deleted successfully.`);
+    } catch (err) {
+      setToast(err.message ?? "Failed to delete transactions.");
+    } finally {
+      setWiping(false);
+    }
+   }
 
   useEffect(() => {
     getSettings().then((s) => setMaxDiscount(s.staffMaxDiscountPercent)).catch(() => {});
@@ -2790,6 +2834,17 @@ function Export() {
         <button className="btn btn-secondary" onClick={handleSaveSettings} disabled={savingSettings}>{savingSettings ? "Saving…" : "Save"}</button>
       </div>
 
+      <div className="card" style={{ marginBottom: 20, maxWidth: 420, borderColor: "var(--danger)" }}>
+        <div className="card-title" style={{ color: "var(--danger)" }}>Area Berbahaya (Hapus Data)</div>
+        <div style={{ fontSize: 13, color: "var(--ink-soft)", marginBottom: 12 }}>
+          Hapus bersih seluruh data transaksi penjualan sekaligus (Berguna untuk mereset riwayat toko setelah fase uji coba). <br/><br/>
+          <strong>Catatan:</strong> Stok produk tidak akan direstore/dikembalikan.
+        </div>
+        <button className="btn btn-danger" onClick={handleWipeTransactions} disabled={wiping}>
+          {wiping ? "Menghapus Transaksi..." : "Hapus Bersih Semua Transaksi"}
+        </button>
+      </div>
+       
       <div className="card">
         <div className="card-title">Recent price / stock edits</div>
         {auditLog.length === 0 ? <div className="empty-state">No direct catalogue edits logged yet.</div> : (
