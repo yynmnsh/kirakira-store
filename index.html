@@ -294,18 +294,18 @@ tbody tr:hover { background: var(--surface-sunken); }
   body { background: #fff !important; }
 }
 
-/* ---- Barcode labels: small sticker sheet, default 40mm x 24mm ---- */
+/* ---- Barcode labels: small sticker sheet, default 30mm x 14mm ---- */
 @media print {
-  @page.labels { size: auto; margin: 3mm; }
+  @page.labels { size: auto; margin: 2mm; }
   .label-sheet {
     display: grid;
     grid-template-columns: repeat(var(--cols, 4), 1fr);
     gap: 2mm;
   }
   .barcode-label {
-    width: 40mm;
-    height: 24mm;
-    padding: 1.5mm;
+    width: 30mm;
+    height: 14mm;
+    padding: 1mm;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -316,7 +316,7 @@ tbody tr:hover { background: var(--surface-sunken); }
   }
   .barcode-label .bl-name {
     font-family: Inter, sans-serif;
-    font-size: 6.5pt;
+    font-size: 5pt;
     font-weight: 700;
     max-width: 100%;
     white-space: nowrap;
@@ -327,26 +327,26 @@ tbody tr:hover { background: var(--surface-sunken); }
   .barcode-label svg { width: 90%; height: auto; }
   .barcode-label .bl-price {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 7pt;
+    font-size: 6pt;
     font-weight: 700;
   }
 }
 
-/* ---- Receipt: narrow thermal-style, default 58mm width ---- */
+/* ---- Receipt: narrow thermal-style, default 30mm width ---- */
 @media print {
-  @page.receipt { size: 58mm auto; margin: 0; }
+  @page.receipt { size: 30mm auto; margin: 0; }
   .receipt-print {
-    width: 58mm;
-    padding: 3mm;
+    width: 30mm;
+    padding: 2mm;
     font-family: 'JetBrains Mono', monospace;
-    font-size: 8.5pt;
+    font-size: 7pt;
     color: #000;
   }
   .receipt-print .r-header { text-align: center; margin-bottom: 2mm; }
-  .receipt-print .r-header .store-name { font-size: 11pt; font-weight: 700; }
+  .receipt-print .r-header .store-name { font-size: 9pt; font-weight: 700; }
   .receipt-print .r-header .jp,
   .receipt-print .r-header .motto,
-  .receipt-print .r-header .address { font-size: 7.5pt; }
+  .receipt-print .r-header .address { font-size: 6pt; }
   .receipt-print hr { border: none; border-top: 0.3mm dashed #000; margin: 2mm 0; }
   .receipt-print .r-line { display: flex; justify-content: space-between; }
   .receipt-print .r-item-row { margin-bottom: 1mm; }
