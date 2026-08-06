@@ -291,15 +291,21 @@ tbody tr:hover { background: var(--surface-sunken); }
 @media print {
   .no-print { display: none !important; }
   .print-only { display: block !important; }
-  html, body { background: #fff !important; margin: 0 !important; padding: 0 !important; }
-  .app-shell { display: block !important; }
-  .main-content { padding: 0 !important; margin: 0 !important; max-width: none !important; }
-}
+  
+  /* PENTING: Hilangkan semua padding, margin, dan tinggi bawaan web 
+     agar tidak mendorong konten ke halaman 2 */
+  html, body, #root, .app-shell, .main-content { 
+    background: #fff !important; 
+    margin: 0 !important; 
+    padding: 0 !important; 
+    height: auto !important; 
+    min-height: 0 !important;
+    max-width: none !important;
+  }
 
-/* ---- Barcode labels: small sticker sheet, default 30mm x 14mm ---- */
-@media print {
+  /* ---- Barcode labels: narrow thermal sticker (30mm x 14mm) ---- */
   .label-sheet {
-    display: block;
+    display: block !important; /* Matikan grid kolom */
   }
   .barcode-label {
     width: 30mm;
@@ -310,8 +316,8 @@ tbody tr:hover { background: var(--surface-sunken); }
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    border: none;
-    page-break-inside: always;
+    border: none; /* Hilangkan garis putus-putus untuk printer */
+    page-break-after: always; /* Paksa pindah halaman per 1 stiker */
     overflow: hidden;
     margin: 0;
   }
@@ -331,13 +337,12 @@ tbody tr:hover { background: var(--surface-sunken); }
     font-size: 6pt;
     font-weight: 700;
   }
-}
 
-/* ---- Receipt: narrow thermal-style, default 30mm width ---- */
-@media print {
+  /* ---- Receipt: narrow thermal-style, default 30mm width ---- */
   .receipt-print {
     width: 30mm;
     padding: 0mm;
+    box-sizing: border-box;
     font-family: 'JetBrains Mono', monospace;
     font-size: 5.5pt;
     color: #000;
@@ -352,7 +357,7 @@ tbody tr:hover { background: var(--surface-sunken); }
   .receipt-print .r-line { display: flex; justify-content: space-between; gap: 2px; }
   .receipt-print .r-item-row { margin-bottom: 0.5mm; }
 }
-
+   
 </style>
 </head>
 <body>
