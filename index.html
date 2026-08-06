@@ -911,6 +911,14 @@ async function listShifts({ staffUid, max = 50 } = {}) {
   });
 }
 
+
+// ============================================================================
+// component: PrintPageSize — dynamically change paper size 
+// ============================================================================
+function PrintPageSize({ size, margin = "0mm" }) {
+  return <style media="print">{`@page { size: ${size}; margin: ${margin}; }`}</style>;
+}
+   
 // ============================================================================
 // component: NumberInput — thousand-separator (Indonesian) number field
 // ============================================================================
@@ -1917,7 +1925,7 @@ function POS() {
 
   return (
     <div>
-      <style media="print">{`@page { size: 30mm auto; margin: 0mm; }`}</style>
+      <PrintPageSize size="30mm auto" />
       <div className="page-header no-print">
         <div>
           <h2>Point of Sale</h2>
@@ -2258,7 +2266,7 @@ function Labels() {
 
   return (
     <div>
-      <style media="print">{`@page { size: 30mm 14mm; margin: 0mm; }`}</style>
+      <PrintPageSize size="30mm 14mm" />
       <div className="page-header no-print">
         <div>
           <h2>Print Labels</h2>
