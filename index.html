@@ -292,8 +292,7 @@ tbody tr:hover { background: var(--surface-sunken); }
   .no-print { display: none !important; }
   .print-only { display: block !important; }
   
-  /* PENTING: Hilangkan semua padding, margin, dan tinggi bawaan web 
-     agar tidak mendorong konten ke halaman 2 */
+  /* 1. RESET SEMUA MARGIN DAN PADDING BAWAAN WEB */
   html, body, #root, .app-shell, .main-content { 
     background: #fff !important; 
     margin: 0 !important; 
@@ -301,11 +300,14 @@ tbody tr:hover { background: var(--surface-sunken); }
     height: auto !important; 
     min-height: 0 !important;
     max-width: none !important;
+    display: block !important; /* PENTING: Mematikan flexbox yang bikin tumpah */
   }
 
-  /* ---- Barcode labels: narrow thermal sticker (30mm x 14mm) ---- */
+  /* 2. SETTING KERTAS LABEL (30mm x 14mm) */
   .label-sheet {
-    display: block !important; /* Matikan grid kolom */
+    display: block !important; /* PENTING: Mematikan grid 4 kolom */
+    margin: 0 !important;
+    padding: 0 !important;
   }
   .barcode-label {
     width: 30mm;
@@ -316,10 +318,11 @@ tbody tr:hover { background: var(--surface-sunken); }
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    border: none; /* Hilangkan garis putus-putus untuk printer */
-    page-break-after: always; /* Paksa pindah halaman per 1 stiker */
+    border: none !important; /* Buang garis putus-putus */
+    page-break-inside: avoid;
+    page-break-after: always; /* Paksa ganti halaman tiap 1 stiker */
     overflow: hidden;
-    margin: 0;
+    margin: 0 !important;
   }
   .barcode-label .bl-name {
     font-family: Inter, sans-serif;
@@ -338,15 +341,16 @@ tbody tr:hover { background: var(--surface-sunken); }
     font-weight: 700;
   }
 
-  /* ---- Receipt: narrow thermal-style, default 30mm width ---- */
+  /* 3. SETTING KERTAS RECEIPT (30mm) */
   .receipt-print {
     width: 30mm;
-    padding: 0mm;
+    padding: 0mm !important;
     box-sizing: border-box;
     font-family: 'JetBrains Mono', monospace;
     font-size: 5.5pt;
     color: #000;
     line-height: 1.1;
+    margin: 0 !important;
   }
   .receipt-print .r-header { text-align: center; margin-bottom: 1.5mm; }
   .receipt-print .r-header .store-name { font-size: 7.5pt; font-weight: 700; margin-bottom: 1px; }
@@ -356,7 +360,7 @@ tbody tr:hover { background: var(--surface-sunken); }
   .receipt-print hr { border: none; border-top: 0.3mm dashed #000; margin: 1.5mm 0; }
   .receipt-print .r-line { display: flex; justify-content: space-between; gap: 2px; }
   .receipt-print .r-item-row { margin-bottom: 0.5mm; }
-}
+}   
    
 </style>
 </head>
