@@ -291,27 +291,29 @@ tbody tr:hover { background: var(--surface-sunken); }
 @media print {
   .no-print { display: none !important; }
   .print-only { display: block !important; }
-  body { background: #fff !important; }
+  html, body { background: #fff !important; margin: 0 !important; padding: 0 !important; }
+  .app-shell { display: block !important; }
+  .main-content { padding: 0 !important; margin: 0 !important; max-width: none !important; }
 }
 
 /* ---- Barcode labels: small sticker sheet, default 30mm x 14mm ---- */
 @media print {
   .label-sheet {
-    display: grid;
-    grid-template-columns: repeat(var(--cols, 4), 1fr);
-    gap: 2mm;
+    display: block;
   }
   .barcode-label {
     width: 30mm;
     height: 14mm;
     padding: 1mm;
+    box-sizing: border-box;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    border: 0.2mm dotted #999;
-    page-break-inside: avoid;
+    border: none;
+    page-break-inside: always;
     overflow: hidden;
+    margin: 0;
   }
   .barcode-label .bl-name {
     font-family: Inter, sans-serif;
@@ -335,7 +337,7 @@ tbody tr:hover { background: var(--surface-sunken); }
 @media print {
   .receipt-print {
     width: 30mm;
-    padding: 1mm;
+    padding: 0mm;
     font-family: 'JetBrains Mono', monospace;
     font-size: 5.5pt;
     color: #000;
