@@ -2065,7 +2065,6 @@ function POS() {
                 <select value={paymentMethod} onChange={(ev) => setPaymentMethod(ev.target.value)}>
                   <option>Cash</option>
                   <option>QRIS</option>
-                  <option>Bank Transfer</option>
                 </select>
               </div>
 
@@ -2270,7 +2269,7 @@ function Labels() {
       <div className="page-header no-print">
         <div>
           <h2>Print Labels</h2>
-          <div className="subtitle">Small CODE128 barcode labels sized for item tags (40mm × 24mm by default).</div>
+          <div className="subtitle">Small barcode labels sized for item tags (30mm × 14mm by default).</div>
         </div>
         <button className="btn btn-primary" disabled={printQueue.length === 0} onClick={() => window.print()}>
           🖨️ Print {printQueue.length > 0 ? `(${printQueue.length} labels)` : ""}
