@@ -296,8 +296,9 @@ tbody tr:hover { background: var(--surface-sunken); }
 
 /* ---- Barcode labels: small sticker sheet, default 30mm x 14mm ---- */
 @media print {
-  @page.labels { size: auto; margin: 2mm; }
+  @page labels { size: 30mm 14mm; margin: 0; }
   .label-sheet {
+    page: labels;
     display: grid;
     grid-template-columns: repeat(var(--cols, 4), 1fr);
     gap: 2mm;
@@ -334,8 +335,9 @@ tbody tr:hover { background: var(--surface-sunken); }
 
 /* ---- Receipt: narrow thermal-style, default 30mm width ---- */
 @media print {
-  @page.receipt { size: 30mm auto; margin: 0; }
+  @page receipt { size: 30mm auto; margin: 0;}
   .receipt-print {
+    page: receipt;
     width: 30mm;
     padding: 1mm;
     font-family: 'JetBrains Mono', monospace;
