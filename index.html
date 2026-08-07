@@ -292,7 +292,7 @@ tbody tr:hover { background: var(--surface-sunken); }
   .no-print { display: none !important; }
   .print-only { display: block !important; }
   
-  /* 1. RESET SEMUA MARGIN DAN PADDING BAWAAN WEB */
+  /* 1. RESET DEFAULT BROWSER MARGIN AND PADDING */
   html, body, #root, .app-shell, .main-content { 
     background: #fff !important; 
     margin: 0 !important; 
@@ -303,9 +303,9 @@ tbody tr:hover { background: var(--surface-sunken); }
     display: block !important; /* PENTING: Mematikan flexbox yang bikin tumpah */
   }
 
-  /* 2. SETTING KERTAS LABEL (30mm x 14mm) */
+  /* 2. LABEL PAPER SETUP (30mm x 14mm) */
   .label-sheet {
-    display: block !important; /* PENTING: Mematikan grid 4 kolom */
+    display: block !important; /* IMPORTANT: disables the 4-column grid */
     margin: 0 !important;
     padding: 0 !important;
   }
@@ -318,9 +318,9 @@ tbody tr:hover { background: var(--surface-sunken); }
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    border: none !important; /* Buang garis putus-putus */
+    border: none !important; /* Remove the dashed border */
     page-break-inside: avoid;
-    page-break-after: always; /* Paksa ganti halaman tiap 1 stiker */
+    page-break-after: always; /* Force a new page after each sticker */
     overflow: hidden;
     margin: 0 !important;
   }
@@ -341,7 +341,7 @@ tbody tr:hover { background: var(--surface-sunken); }
     font-weight: 700;
   }
 
-  /* 3. SETTING KERTAS RECEIPT (30mm) */
+  /* 3. RECEIPT PAPER SETUP (30mm) */
   .receipt-print {
     width: 30mm;
     padding: 0mm !important;
@@ -1395,7 +1395,7 @@ function VoidSalePanel() {
                     {isManager && (
                       <td>
                         <button className="btn btn-danger btn-sm" onClick={async () => {
-                          if(!confirm("Hapus permanen riwayat void ini?")) return;
+                          if(!confirm("Permanently delete this void record?")) return;
                           try { await deleteDoc(doc(db, "corrections", c.id)); refresh(); }
                           catch(err) { setToast(err.message); }
                         }}>Delete</button>
@@ -1622,7 +1622,7 @@ function StockAdjustmentPanel() {
                     {isManager && (
                       <td>
                         <button className="btn btn-danger btn-sm" onClick={async () => {
-                          if(!confirm("Hapus permanen riwayat adjustment ini?")) return;
+                          if(!confirm("Permanently delete this adjustment record?")) return;
                           try { await deleteDoc(doc(db, "stockAdjustments", a.id)); refresh(); }
                           catch(err) { setToast(err.message); }
                         }}>Delete</button>
@@ -2073,7 +2073,7 @@ function POS() {
                   <label>Amount received</label>
                   <NumberInput value={amountReceivedInput} onChange={setAmountReceivedInput} placeholder={String(total)} />
                   <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 6 }}>
-                    <button type="button" className="btn btn-secondary btn-sm" onClick={() => setAmountReceivedInput(String(total))}>Pas</button>
+                    <button type="button" className="btn btn-secondary btn-sm" onClick={() => setAmountReceivedInput(String(total))}>Exact Amount</button>
                     {CASH_QUICK_BUMPS.filter((b) => b > 0).map((bump) => (
                       <button key={bump} type="button" className="btn btn-secondary btn-sm"
                         onClick={() => setAmountReceivedInput(String(Math.ceil(total / bump) * bump))}>
@@ -2464,7 +2464,7 @@ function Shift() {
                     {isManager && (
                       <td>
                         <button className="btn btn-danger btn-sm" onClick={async () => {
-                          if(!confirm("Hapus permanen riwayat shift ini?")) return;
+                          if(!confirm("Permanently delete this shift record?")) return;
                           try { await deleteDoc(doc(db, "shifts", h.id)); refresh(); }
                           catch(err) { setToast(err.message); }
                         }}>Delete</button>
@@ -2942,11 +2942,11 @@ function Export() {
                     {/* ADD THIS */}
                     <td>
                       <button className="btn btn-danger btn-sm" onClick={async () => {
-                        if(!confirm("Hapus log audit ini?")) return;
+                        if(!confirm("Delete this audit log entry?")) return;
                         try {
                           await deleteDoc(doc(db, "auditLog", a.id));
                           setAuditLog(prev => prev.filter(item => item.id !== a.id));
-                          setToast("Log dihapus.");
+                          setToast("Log entry deleted.");
                         } catch(err) { setToast(err.message); }
                       }}>Delete</button>
                     </td>                   
