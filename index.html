@@ -2315,7 +2315,7 @@ function Labels() {
         )}
       </div>
 
-      <div className="print-only label-sheet" style={{ "--cols": cols }}>
+      <div className="print-only label-sheet">
         {printQueue.map((p, i) => (
           <div className="barcode-label" key={p.id + "-" + i}>
             <div className="bl-name">{p.name}</div>
