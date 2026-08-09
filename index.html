@@ -2203,15 +2203,15 @@ function Inventory() {
        {isManager && !loading && (
         <div className="stat-grid" style={{ marginBottom: 24 }}>
           <div className="stat-card">
-            <div className="label">Total Jenis SKU</div>
+            <div className="label">Total SKU Types</div>
             <div className="value">{products.length}</div>
           </div>
           <div className="stat-card">
-            <div className="label">Total Fisik Barang (Semua)</div>
+            <div className="label">Total Physical Items</div>
             <div className="value">{totalItems.toLocaleString("id-ID")}</div>
           </div>
           <div className="stat-card" style={{ gridColumn: "1 / -1" }}>
-            <div className="label">Total Fisik per Kategori</div>
+            <div className="label"></div>
             <div style={{ marginTop: 12, display: "flex", gap: "10px", flexWrap: "wrap" }}>
               {categoryBreakdown.map(([cat, count]) => (
                 <div key={cat} style={{ background: "var(--surface-sunken)", padding: "6px 12px", borderRadius: "8px", fontSize: 13 }}>
