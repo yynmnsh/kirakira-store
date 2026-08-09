@@ -2177,6 +2177,18 @@ function Inventory() {
     return Object.entries(counts).sort((a, b) => b[1] - a[1]); // Urutkan dari jumlah terbanyak
   }, [products]);
 
+   const inventoryValue = useMemo(() => {
+       return products.reduce((acc, p) => {
+         const cost = Number(p.cost) || 0;
+         const price = Number(p.price) || 0;
+         const stock = Number(p.stock) || 0;
+         return {
+           modal: acc.modal + (cost * stock),
+           retail: acc.retail + (price * stock)
+         };
+       }, { modal: 0, retail: 0 });
+     }, [products]);
+   
   async function handleSave(data) {
     if (editing?.id) {
       await updateProduct(editing.id, data, { uid: user.uid, name: profile?.name ?? user.email });
@@ -2210,6 +2222,16 @@ function Inventory() {
             <div className="label">Total Stocks</div>
             <div className="value">{totalItems.toLocaleString("id-ID")}</div>
           </div>
+
+          <div className="stat-card">
+            <div className="label">Total Capital (Rp)</div>
+            <div className="value" style={{ fontSize: 20 }}>{formatIDR(inventoryValue.modal)}</div>
+          </div>
+          <div className="stat-card">
+            <div className="label">Potential Sales (Rp)</div>
+            <div className="value" style={{ fontSize: 20 }}>{formatIDR(inventoryValue.retail)}</div>
+          </div>
+           
           <div className="stat-card" style={{ gridColumn: "1 / -1" }}>
             <div style={{ marginTop: 12, display: "flex", gap: "10px", flexWrap: "wrap" }}>
               {categoryBreakdown.map(([cat, count]) => (
