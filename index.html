@@ -2170,6 +2170,13 @@ function Inventory() {
     return matchesSearch && matchesCategory;
   });
 
+  const totalItems = useMemo(() => products.reduce((sum, p) => sum + p.stock, 0), [products]);
+  const categoryBreakdown = useMemo(() => {
+    const counts = {};
+    products.forEach((p) => { counts[p.category] = (counts[p.category] || 0) + p.stock; });
+    return Object.entries(counts).sort((a, b) => b[1] - a[1]); // Urutkan dari jumlah terbanyak
+  }, [products]);
+
   async function handleSave(data) {
     if (editing?.id) {
       await updateProduct(editing.id, data, { uid: user.uid, name: profile?.name ?? user.email });
@@ -2193,6 +2200,29 @@ function Inventory() {
         {isManager && <button className="btn btn-primary" onClick={() => setEditing({})}>+ Add product</button>}
       </div>
 
+       {isManager && !loading && (
+        <div className="stat-grid" style={{ marginBottom: 24 }}>
+          <div className="stat-card">
+            <div className="label">Total Jenis SKU</div>
+            <div className="value">{products.length}</div>
+          </div>
+          <div className="stat-card">
+            <div className="label">Total Fisik Barang (Semua)</div>
+            <div className="value">{totalItems.toLocaleString("id-ID")}</div>
+          </div>
+          <div className="stat-card" style={{ gridColumn: "1 / -1" }}>
+            <div className="label">Total Fisik per Kategori</div>
+            <div style={{ marginTop: 12, display: "flex", gap: "10px", flexWrap: "wrap" }}>
+              {categoryBreakdown.map(([cat, count]) => (
+                <div key={cat} style={{ background: "var(--surface-sunken)", padding: "6px 12px", borderRadius: "8px", fontSize: 13 }}>
+                  <span style={{ fontWeight: 600, color: "var(--ink)" }}>{cat}</span>: <span className="mono">{count.toLocaleString("id-ID")}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+       
       <div className="toolbar">
         <input type="text" placeholder="Search name or SKU…" value={search} onChange={(ev) => setSearch(ev.target.value)} />
         <select value={category} onChange={(ev) => setCategory(ev.target.value)}>{categories.map((c) => <option key={c}>{c}</option>)}</select>
