@@ -334,34 +334,35 @@ tbody tr:hover { background: var(--surface-sunken); }
     text-align: center !important;
   }
 
-  .barcode-label .bl-name {
-    font-family: Inter, sans-serif;
-    font-size: 5pt !important;
-    font-weight: 700;
+.barcode-label .bl-name {
+    font-family: Arial, Helvetica, sans-serif !important; /* Gunakan font dasar agar mesin cetak tidak bingung */
+    font-size: 6pt !important; /* Ukuran dibesarkan sedikit */
+    font-weight: normal !important; /* PENTING: Hapus efek BOLD agar tinta tidak mleber */
     display: block !important;
     width: 100% !important;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     text-align: center !important;
-    margin: 0 !important;
-    line-height: 1.1 !important;
+    margin: 0 0 1px 0 !important;
+    line-height: 1 !important;
   }
   .barcode-label svg {
     display: block !important;
-    width: 90% !important; 
-    height: auto !important;
-    margin: 0.5px auto !important; 
+    width: auto !important; 
+    max-width: 100% !important;
+    height: 15px !important; /* Kunci tinggi barcode agar tidak gepeng */
+    margin: 1px auto !important; 
   }
   .barcode-label .bl-price {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: Arial, Helvetica, sans-serif !important;
     font-size: 6pt !important;
     font-weight: 700;
     display: block !important;
     width: 100% !important;
     text-align: center !important;
     margin: 0 !important;
-    line-height: 1 !important;
+    line-height: 1.1 !important;
   }
 
   /* 3. RECEIPT PAPER SETUP (30mm) */
@@ -2394,8 +2395,9 @@ function Labels() {
           <div className="barcode-label" key={p.id + "-" + i}>
             <div className="label-inner">
               <div className="bl-name">{p.name}</div>
-              <Barcode value={p.sku} height={35} width={1.5} fontSize={5.5} />
-              <div className="bl-price">{formatIDR(p.price)}</div>
+              {/* Width dinaikkan jadi 2 agar garis lebih tebal & displayValue dimatikan */}
+              <Barcode value={p.sku} height={30} width={2} displayValue={false} />
+              <div className="bl-price">{p.sku} • {formatIDR(p.price)}</div>
             </div>
           </div>
         ))}
