@@ -303,32 +303,35 @@ tbody tr:hover { background: var(--surface-sunken); }
     display: block !important; /* PENTING: Mematikan flexbox yang bikin tumpah */
   }
 
-  /* 2. LABEL PAPER SETUP (33mm x 15mm) */
+  /* 2. LABEL PAPER SETUP (Trick 58mm app scaling for 36x18mm label) */
 .label-sheet {
     display: block !important;
-    width: 36mm !important;
+    width: 58mm !important; /* Bohongi aplikasi, bilang ini 58mm */
     margin: 0 !important;
     padding: 0 !important;
   }
   .barcode-label {
-    width: 36mm !important;
-    height: 12mm !important; /* Paksa printer menggulung 18mm (termasuk gap) */
+    width: 58mm !important; /* Total kanvas */
+    height: 18mm !important; /* Tinggi area gulung per stiker + gap */
     box-sizing: border-box;
     display: block !important;
-    text-align: center !important;
-    
-    /* --- PENGATURAN POSISI (GESER KE KANAN & TENGAH) --- */
-    padding-top: 1.5mm !important; /* Dorong ke bawah agar masuk ke area stiker dalam */
-    padding-left: 10 mm !important; /* PENTING: Dorong ke kanan untuk mengatasi terpotong */
-    padding-right: 1mm !important;
-    /* ---------------------------------------------------- */
-    
     border: none !important;
     page-break-inside: avoid;
     page-break-after: always;
     overflow: hidden;
     margin: 0 !important;
+    padding: 0 !important;
   }
+  
+  /* Ini adalah area nyata tempat stikermu berada di mesin printer */
+  .label-inner {
+    width: 34mm !important; /* Lebar area cetak di dalam stiker */
+    height: 16mm !important; /* Tinggi area cetak di dalam stiker */
+    margin-top: 1mm !important; /* Jeda atas ke area stiker dalam */
+    margin-left: 2mm !important; /* GESER KE KANAN DI SINI! */
+    text-align: center !important;
+  }
+
   .barcode-label .bl-name {
     font-family: Inter, sans-serif;
     font-size: 4.5pt !important;
@@ -340,12 +343,13 @@ tbody tr:hover { background: var(--surface-sunken); }
     text-overflow: ellipsis;
     text-align: center !important;
     margin: 0 !important;
+    line-height: 1 !important;
   }
   .barcode-label svg {
     display: block !important;
     width: 85% !important; 
     height: auto !important;
-    margin: 0.5mm auto !important; 
+    margin: 0.5px auto !important; 
   }
   .barcode-label .bl-price {
     font-family: 'JetBrains Mono', monospace;
@@ -355,6 +359,7 @@ tbody tr:hover { background: var(--surface-sunken); }
     width: 100% !important;
     text-align: center !important;
     margin: 0 !important;
+    line-height: 1 !important;
   }
 
   /* 3. RECEIPT PAPER SETUP (30mm) */
@@ -2331,7 +2336,7 @@ function Labels() {
 
   return (
     <div>
-      <PrintPageSize size="36mm 18mm" />
+      <PrintPageSize size="58mm 18mm" />
       <div className="page-header no-print">
         <div>
           <h2>Print Labels</h2>
@@ -2382,12 +2387,14 @@ function Labels() {
         )}
       </div>
 
-      <div className="print-only label-sheet">
+     <div className="print-only label-sheet">
         {printQueue.map((p, i) => (
           <div className="barcode-label" key={p.id + "-" + i}>
-            <div className="bl-name">{p.name}</div>
-            <Barcode value={p.sku} height={35} width={1.5} fontSize={5.5} />
-            <div className="bl-price">{formatIDR(p.price)}</div>
+            <div className="label-inner">
+              <div className="bl-name">{p.name}</div>
+              <Barcode value={p.sku} height={35} width={1.5} fontSize={5.5} />
+              <div className="bl-price">{formatIDR(p.price)}</div>
+            </div>
           </div>
         ))}
       </div>
