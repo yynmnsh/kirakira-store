@@ -336,9 +336,10 @@ tbody tr:hover { background: var(--surface-sunken); }
 
   .barcode-label svg {
     display: block !important;
-    max-width: 100% !important;
+    width: auto !important;
     height: 9mm !important;
     margin: 0 auto 1mm auto !important;
+    shape-rendering: crispEdges !important;
   }
   .barcode-label .bl-price {
     font-family: Arial, Helvetica, sans-serif !important;
@@ -2380,7 +2381,7 @@ function Labels() {
         {printQueue.map((p, i) => (
           <div className="barcode-label" key={p.id + "-" + i}>
             <div className="label-inner">
-               <Barcode value={p.sku} height={50} width={2} displayValue={false} margin={0} />
+               <Barcode value={p.sku} height={40} width={2} displayValue={false} margin={0} />
               <div className="bl-price">{p.sku} • {formatIDR(p.price)}</div>
             </div>
           </div>
