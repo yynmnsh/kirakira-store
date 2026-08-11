@@ -334,29 +334,15 @@ tbody tr:hover { background: var(--surface-sunken); }
     text-align: center !important;
   }
 
-.barcode-label .bl-name {
-    font-family: Arial, Helvetica, sans-serif !important; /* Gunakan font dasar agar mesin cetak tidak bingung */
-    font-size: 6pt !important; /* Ukuran dibesarkan sedikit */
-    font-weight: normal !important; /* PENTING: Hapus efek BOLD agar tinta tidak mleber */
-    display: block !important;
-    width: 100% !important;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    text-align: center !important;
-    margin: 0 0 1px 0 !important;
-    line-height: 1 !important;
-  }
   .barcode-label svg {
     display: block !important;
-    width: auto !important; 
-    max-width: 100% !important;
-    height: 15px !important; /* Kunci tinggi barcode agar tidak gepeng */
-    margin: 1px auto !important; 
+    width: 95% !important; 
+    height: 11mm !important;
+    margin: 0 auto 1.5mm auto !important;
   }
   .barcode-label .bl-price {
     font-family: Arial, Helvetica, sans-serif !important;
-    font-size: 6pt !important;
+    font-size: 6.5pt !important;
     font-weight: 700;
     display: block !important;
     width: 100% !important;
@@ -2394,9 +2380,8 @@ function Labels() {
         {printQueue.map((p, i) => (
           <div className="barcode-label" key={p.id + "-" + i}>
             <div className="label-inner">
-              <div className="bl-name">{p.name}</div>
               {/* Width dinaikkan jadi 2 agar garis lebih tebal & displayValue dimatikan */}
-              <Barcode value={p.sku} height={30} width={2} displayValue={false} />
+               <Barcode value={p.sku} height={60} width={2.5} displayValue={false} margin={0} />
               <div className="bl-price">{p.sku} • {formatIDR(p.price)}</div>
             </div>
           </div>
