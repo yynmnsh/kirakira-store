@@ -913,65 +913,6 @@ async function listShifts({ staffUid, max = 50 } = {}) {
 
 
 // ============================================================================
-// utils: bluetoothPrint (mate.bluetoothprint integration)
-// ============================================================================
-function sendToBluetoothPrint(formattedString) {
-  // Menggunakan URL Scheme intent:// untuk memicu aplikasi Android
-  const encodedText = encodeURIComponent(formattedString);
-  const intentUrl = `intent:#Intent;action=android.intent.action.SEND;type=text/plain;S.android.intent.extra.TEXT=${encodedText};package=mate.bluetoothprint;end`;
-  window.location.href = intentUrl;
-}
-
-function printReceiptBluetooth(sale) {
-  const formatIDRLocal = (n) => "Rp" + Math.round(n).toLocaleString("id-ID");
-  const date = sale.createdAt instanceof Date ? sale.createdAt : new Date(sale.createdAt);
-  
-  let str = "";
-  // Format <BAF> => B(Bold 0/1), A(Align 0:L, 1:C, 2:R), F(Size 0-3)
-  str += "<110>Kirakira Studio\n";
-  str += "<010>キラキラ\n";
-  str += "<010>Pretty Things for Everyday\n";
-  str += "<000>--------------------------------\n";
-  str += `<000>Receipt: ${sale.receiptNo}\n`;
-  str += `<000>Date   : ${date.toLocaleString("id-ID")}\n`;
-  str += `<000>Cashier: ${sale.cashierName}\n`;
-  str += "<000>--------------------------------\n";
-  
-  sale.items.forEach(it => {
-    str += `<000>${it.name}\n`;
-    str += `<000>  ${it.qty} x ${formatIDRLocal(it.unitPrice)} = ${formatIDRLocal(it.unitPrice * it.qty)}\n`;
-  });
-  
-  str += "<000>--------------------------------\n";
-  str += `<000>Subtotal : ${formatIDRLocal(sale.subtotal)}\n`;
-  if (sale.productDiscountTotal > 0) str += `<000>P.Disc   : -${formatIDRLocal(sale.productDiscountTotal)}\n`;
-  if (sale.transactionDiscount?.amount > 0) str += `<000>T.Disc   : -${formatIDRLocal(sale.transactionDiscount.amount)}\n`;
-  str += `<100>TOTAL    : ${formatIDRLocal(sale.total)}\n`;
-  str += `<000>Payment  : ${sale.paymentMethod}\n`;
-  if (sale.paymentMethod === "Cash") {
-    str += `<000>Bayar    : ${formatIDRLocal(sale.amountReceived)}\n`;
-    str += `<000>Kembali  : ${formatIDRLocal(sale.changeGiven)}\n`;
-  }
-  str += "<000>--------------------------------\n";
-  str += "<010>Thank you for shopping with us!\n\n\n";
-
-  sendToBluetoothPrint(str);
-}
-
-function printLabelsBluetooth(printQueue) {
-  if (printQueue.length === 0) return;
-  const formatIDRLocal = (n) => "Rp" + Math.round(n).toLocaleString("id-ID");
-  let str = "";
-  printQueue.forEach(p => {
-    str += `<010>${p.name}\n`;
-    // Format: <BARCODE>Align#Width#Height#Value
-    str += `<BARCODE>1#100#50#${p.sku}\n`;
-    str += `<110>${formatIDRLocal(p.price)}\n\n\n`;
-  });
-  sendToBluetoothPrint(str);
-}
-   
-// ============================================================================
 // component: PrintPageSize — dynamically change paper size 
 // ============================================================================
 function PrintPageSize({ size, margin = "0mm" }) {
@@ -1962,7 +1903,7 @@ function POS() {
         const line = sale.items.find((it) => it.productId === p.id);
         return line ? { ...p, stock: p.stock - line.qty } : p;
       }));
-      printReceiptBluetooth(sale);
+      setTimeout(() => window.print(), 150);
     } catch (err) { setToast(err.message ?? "Checkout failed"); } finally { setCheckingOut(false); }
   }
 
@@ -1975,7 +1916,7 @@ function POS() {
       setReprintSales(s); setReprintLoading(false);
     }
   }
-  function printReprint(sale) { setReprintSale(sale); printReceiptBluetooth(sale); }
+  function printReprint(sale) { setReprintSale(sale); setTimeout(() => window.print(), 150); }
 
   const suggestions = manualCode.length > 0
     ? allProducts.filter((p) => p.sku.toLowerCase().includes(manualCode.toLowerCase()) || p.name.toLowerCase().includes(manualCode.toLowerCase())).slice(0, 6)
@@ -2161,7 +2102,7 @@ function POS() {
             <>
               <ReceiptPreview sale={lastSale} />
               <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
-                <button className="btn btn-secondary" style={{ flex: 1 }} onClick={() => printReceiptBluetooth(lastSale)}>🖨️ Print again</button>
+                <button className="btn btn-secondary" style={{ flex: 1 }} onClick={() => window.print()}>🖨️ Print again</button>
                 <button className="btn btn-primary" style={{ flex: 1 }} onClick={() => setLastSale(null)}>+ New sale</button>
               </div>
             </>
@@ -2283,11 +2224,11 @@ function Inventory() {
           </div>
 
           <div className="stat-card">
-            <div className="label">Total Capital</div>
+            <div className="label">Total Capital (Rp)</div>
             <div className="value" style={{ fontSize: 20 }}>{formatIDR(inventoryValue.modal)}</div>
           </div>
           <div className="stat-card">
-            <div className="label">Potential Sales</div>
+            <div className="label">Potential Sales (Rp)</div>
             <div className="value" style={{ fontSize: 20 }}>{formatIDR(inventoryValue.retail)}</div>
           </div>
            
@@ -2380,7 +2321,7 @@ function Labels() {
           <h2>Print Labels</h2>
           <div className="subtitle">Small barcode labels sized for item tags (30mm × 14mm by default).</div>
         </div>
-        <button className="btn btn-primary" disabled={printQueue.length === 0} onClick={() => printLabelsBluetooth(printQueue)}>
+        <button className="btn btn-primary" disabled={printQueue.length === 0} onClick={() => window.print()}>
           🖨️ Print {printQueue.length > 0 ? `(${printQueue.length} labels)` : ""}
         </button>
       </div>
