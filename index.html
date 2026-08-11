@@ -303,15 +303,15 @@ tbody tr:hover { background: var(--surface-sunken); }
     display: block !important; /* PENTING: Mematikan flexbox yang bikin tumpah */
   }
 
-  /* 2. LABEL PAPER SETUP (30mm x 14mm) */
+  /* 2. LABEL PAPER SETUP (33mm x 15mm) */
   .label-sheet {
     display: block !important; /* IMPORTANT: disables the 4-column grid */
     margin: 0 !important;
     padding: 0 !important;
   }
   .barcode-label {
-    width: 30mm;
-    height: 14mm;
+    width: 33mm;
+    height: 15mm;
     padding: 1mm;
     box-sizing: border-box;
     display: flex;
@@ -2315,11 +2315,11 @@ function Labels() {
 
   return (
     <div>
-      <PrintPageSize size="30mm 14mm" />
+      <PrintPageSize size="33mm 15mm" />
       <div className="page-header no-print">
         <div>
           <h2>Print Labels</h2>
-          <div className="subtitle">Small barcode labels sized for item tags (30mm × 14mm by default).</div>
+          <div className="subtitle">Small barcode labels sized for item tags (33mm × 15mm by default).</div>
         </div>
         <button className="btn btn-primary" disabled={printQueue.length === 0} onClick={() => window.print()}>
           🖨️ Print {printQueue.length > 0 ? `(${printQueue.length} labels)` : ""}
