@@ -921,12 +921,19 @@ function PrintPageSize({ size, margin = "0mm" }) {
 
 
 // ============================================================================
-// utils: bluetoothPrint (mate.bluetoothprint integration)
+// utils: bluetoothPrint (mate.bluetoothprint / Thermer integration)
 // ============================================================================
 function sendToBluetoothPrint(formattedString) {
-  const encodedText = encodeURIComponent(formattedString);
-  const intentUrl = `intent:#Intent;action=android.intent.action.SEND;type=text/plain;S.android.intent.extra.TEXT=${encodedText};package=mate.bluetoothprint;end`;
-  window.location.href = intentUrl;
+  // Use default Share feature in Android if available (Very recommended)
+  if (navigator.share) {
+    navigator.share({
+      text: formattedString
+    }).catch((err) => console.log("Gagal membagikan:", err));
+  } else {
+    // Fallback URL Intent jika browser tidak mendukung fitur share
+    const encodedText = encodeURIComponent(formattedString);
+    window.location.href = `intent:#Intent;action=android.intent.action.SEND;type=text/plain;S.android.intent.extra.TEXT=${encodedText};package=mate.bluetoothprint;end`;
+  }
 }
 
 function printReceiptBluetooth(sale) {
