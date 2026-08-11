@@ -306,17 +306,23 @@ tbody tr:hover { background: var(--surface-sunken); }
   /* 2. LABEL PAPER SETUP (33mm x 15mm) */
 .label-sheet {
     display: block !important;
-    width: 33mm !important;
+    width: 36mm !important;
     margin: 0 !important;
     padding: 0 !important;
   }
   .barcode-label {
-    width: 33mm !important;
-    height: 15mm !important;
+    width: 36mm !important;
+    height: 18mm !important; /* Paksa printer menggulung 18mm (termasuk gap) */
     box-sizing: border-box;
-    display: block !important; /* Buang flexbox yang bikin error */
-    text-align: center !important; /* Kunci utama rata tengah klasik */
-    padding-top: 1mm !important; /* Dorong teks sedikit agar tidak mentok atas */
+    display: block !important;
+    text-align: center !important;
+    
+    /* --- PENGATURAN POSISI (GESER KE KANAN & TENGAH) --- */
+    padding-top: 1.5mm !important; /* Dorong ke bawah agar masuk ke area stiker dalam */
+    padding-left: 4.5mm !important; /* PENTING: Dorong ke kanan untuk mengatasi terpotong */
+    padding-right: 1mm !important;
+    /* ---------------------------------------------------- */
+    
     border: none !important;
     page-break-inside: avoid;
     page-break-after: always;
@@ -325,7 +331,7 @@ tbody tr:hover { background: var(--surface-sunken); }
   }
   .barcode-label .bl-name {
     font-family: Inter, sans-serif;
-    font-size: 5pt !important;
+    font-size: 4.5pt !important;
     font-weight: 700;
     display: block !important;
     width: 100% !important;
@@ -337,9 +343,9 @@ tbody tr:hover { background: var(--surface-sunken); }
   }
   .barcode-label svg {
     display: block !important;
-    width: 80% !important;
+    width: 85% !important; 
     height: auto !important;
-    margin: 1.5px auto !important; /* Memaksa gambar barcode selalu di tengah */
+    margin: 0.5mm auto !important; 
   }
   .barcode-label .bl-price {
     font-family: 'JetBrains Mono', monospace;
@@ -2325,11 +2331,11 @@ function Labels() {
 
   return (
     <div>
-      <PrintPageSize size="33mm 15mm" />
+      <PrintPageSize size="36mm 18mm" />
       <div className="page-header no-print">
         <div>
           <h2>Print Labels</h2>
-          <div className="subtitle">Small barcode labels sized for item tags (33mm × 15mm by default).</div>
+          <div className="subtitle">Small barcode labels sized for item tags (36mm × 18mm by default).</div>
         </div>
         <button className="btn btn-primary" disabled={printQueue.length === 0} onClick={() => window.print()}>
           🖨️ Print {printQueue.length > 0 ? `(${printQueue.length} labels)` : ""}
