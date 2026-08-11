@@ -19,19 +19,19 @@
 <body>
 <h1>🖨️ Bluetooth Printer Diagnostic</h1>
 <div class="warn">
-  Buka halaman ini lewat <b>Chrome</b> (bukan Samsung Internet). Pastikan Bluetooth HP menyala dan printer dalam keadaan hidup.
+  Open this page through <b>Chrome</b> (not Samsung Internet). Turn on Bluetooth for both your Android device and the printer.
 </div>
 
 <button class="primary" id="btnConnect">1. Connect ke Printer</button>
 
 <select id="charSelect" disabled>
-  <option>— connect dulu untuk melihat daftar characteristic —</option>
+  <option>— connect first to see the list of characteristics —</option>
 </select>
 
-<button class="secondary" id="btnTest" disabled>2. Kirim Test Print</button>
+<button class="secondary" id="btnTest" disabled>2. Sending Test Print</button>
 <button class="secondary" id="btnDisconnect" disabled>Disconnect</button>
 
-<div id="log">Menunggu koneksi...\n</div>
+<div id="log">Connecting...\n</div>
 
 <script>
 const logEl = document.getElementById('log');
@@ -47,12 +47,12 @@ function log(msg) {
 // supaya Chrome mengizinkan kita membaca GATT table-nya walau kita belum tahu
 // yang mana yang benar.
 const CANDIDATE_SERVICES = [
-  '49535343-fe7d-4ae5-8fa9-9fafd205e455', // ISSC UART (paling umum di printer 58mm Cina)
+  '49535343-fe7d-4ae5-8fa9-9fafd205e455', // ISSC UART (most common in 58mm Chinese printer)
   '0000ffe0-0000-1000-8000-00805f9b34fb', // HM-10 style
   '0000ff00-0000-1000-8000-00805f9b34fb', // generic
   '000018f0-0000-1000-8000-00805f9b34fb', // generic printer service
   '6e400001-b5a3-f393-e0a9-e50e24dcca9e', // Nordic UART
-  'e7810a71-73ae-499d-8c15-faa9aef0c3f2', // dipakai beberapa printer label kecil
+  'e7810a71-73ae-499d-8c15-faa9aef0c3f2', // used by some small label printers
   '00001800-0000-1000-8000-00805f9b34fb',
   '00001801-0000-1000-8000-00805f9b34fb',
   '0000180a-0000-1000-8000-00805f9b34fb',
@@ -62,31 +62,31 @@ let device, server, writableCharacteristics = [];
 
 document.getElementById('btnConnect').addEventListener('click', async () => {
   if (!('bluetooth' in navigator)) {
-    log('❌ Web Bluetooth tidak didukung. Pastikan pakai Chrome untuk Android.');
+    log('❌ Web Bluetooth not supported. Use Chrome for Android.');
     return;
   }
   try {
-    log('Membuka dialog pilih perangkat Bluetooth...');
+    log('Opening Bluetooth device dialog options...');
     device = await navigator.bluetooth.requestDevice({
       acceptAllDevices: true,
       optionalServices: CANDIDATE_SERVICES,
     });
-    log(`Dipilih: ${device.name || '(tanpa nama)'} [${device.id}]`);
+    log(`Selected: ${device.name || '(no name)'} [${device.id}]`);
 
-    device.addEventListener('gattserverdisconnected', () => log('⚠️ Printer terputus.'));
+    device.addEventListener('gattserverdisconnected', () => log('⚠️ Printer disconnected.'));
 
     server = await device.gatt.connect();
-    log('✅ Terhubung ke GATT server.');
+    log('✅ Connected to GATT server.');
 
     const services = await server.getPrimaryServices();
-    log(`Ditemukan ${services.length} service.`);
+    log(`Found ${services.length} service.`);
     writableCharacteristics = [];
 
     for (const service of services) {
       log(`\n▶ Service: ${service.uuid}`);
       let chars;
       try { chars = await service.getCharacteristics(); }
-      catch (e) { log(`  (gagal baca characteristics: ${e.message})`); continue; }
+      catch (e) { log(`  (fail to read characteristics: ${e.message})`); continue; }
 
       for (const c of chars) {
         const props = Object.entries(c.properties).filter(([k,v]) => v).map(([k]) => k).join(', ');
@@ -100,8 +100,8 @@ document.getElementById('btnConnect').addEventListener('click', async () => {
     const sel = document.getElementById('charSelect');
     sel.innerHTML = '';
     if (writableCharacteristics.length === 0) {
-      sel.innerHTML = '<option>Tidak ada characteristic yang bisa ditulis ditemukan</option>';
-      log('\n❌ Tidak ada characteristic writable. Coba service UUID lain / cek app resmi printer untuk info lebih lanjut.');
+      sel.innerHTML = '<option>No characteristics found</option>';
+      log('\n❌ No writable characteristic. Try other  UUID service / check official printer for further info.');
     } else {
       writableCharacteristics.forEach((c, i) => {
         const opt = document.createElement('option');
@@ -111,7 +111,7 @@ document.getElementById('btnConnect').addEventListener('click', async () => {
       });
       sel.disabled = false;
       document.getElementById('btnTest').disabled = false;
-      log(`\n✅ ${writableCharacteristics.length} characteristic writable ditemukan. Pilih salah satu lalu tekan "Kirim Test Print".`);
+      log(`\n✅ ${writableCharacteristics.length} Writable characteristic found. Select one then "Send Test Print".`);
     }
     document.getElementById('btnDisconnect').disabled = false;
   } catch (err) {
@@ -132,7 +132,7 @@ document.getElementById('btnTest').addEventListener('click', async () => {
 
   try {
     log(`\nMengirim ${payload.length} byte ke ${char.uuid}...`);
-    // Kirim per-chunk (beberapa printer BLE punya batas MTU ~20-180 byte per write)
+    // Send per-chunk (some BLE printers have MTU limit of ~20-180 byte per write)
     const CHUNK = 100;
     for (let i = 0; i < payload.length; i += CHUNK) {
       const chunk = payload.slice(i, i + CHUNK);
@@ -143,7 +143,7 @@ document.getElementById('btnTest').addEventListener('click', async () => {
       }
       await new Promise(r => setTimeout(r, 30));
     }
-    log('✅ Data terkirim. Cek printer — apakah keluar kertas dengan tulisan "TEST PRINT OK"?');
+    log('✅ Data sent. Check printer — a paper should be printed with "TEST PRINT OK"?');
   } catch (err) {
     log('❌ Gagal kirim: ' + err.message);
   }
