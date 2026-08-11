@@ -921,19 +921,23 @@ function PrintPageSize({ size, margin = "0mm" }) {
 
 
 // ============================================================================
-// utils: bluetoothPrint (mate.bluetoothprint / Thermer integration)
+// utils: bluetoothPrint (mate.bluetoothprint integration)
 // ============================================================================
 function sendToBluetoothPrint(formattedString) {
-  // Use default Share feature in Android if available (Very recommended)
-  if (navigator.share) {
-    navigator.share({
-      text: formattedString
-    }).catch((err) => console.log("Gagal membagikan:", err));
-  } else {
-    // Fallback URL Intent jika browser tidak mendukung fitur share
-    const encodedText = encodeURIComponent(formattedString);
-    window.location.href = `intent:#Intent;action=android.intent.action.SEND;type=text/plain;S.android.intent.extra.TEXT=${encodedText};package=mate.bluetoothprint;end`;
-  }
+  const encodedText = encodeURIComponent(formattedString);
+  
+  const intentUrl = `intent:#Intent;action=android.intent.action.SEND;type=text/plain;S.android.intent.extra.TEXT=${encodedText};package=mate.bluetoothprint;end`;
+
+  const link = document.createElement("a");
+  link.href = intentUrl;
+  link.style.display = "none";
+  document.body.appendChild(link);
+  
+  link.click(); // Eksekusi lompatan ke aplikasi Thermer
+  
+  setTimeout(() => {
+    document.body.removeChild(link);
+  }, 500);
 }
 
 function printReceiptBluetooth(sale) {
