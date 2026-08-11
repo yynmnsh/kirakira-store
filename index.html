@@ -306,19 +306,17 @@ tbody tr:hover { background: var(--surface-sunken); }
   /* 2. LABEL PAPER SETUP (33mm x 15mm) */
 .label-sheet {
     display: block !important;
-    width: 33mm !important; /* Paksa lebar di 33mm agar aplikasi tidak menariknya ke 58mm */
+    width: 33mm !important;
     margin: 0 !important;
     padding: 0 !important;
   }
   .barcode-label {
     width: 33mm !important;
     height: 15mm !important;
-    padding: 0.5mm !important;
     box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    display: block !important; /* Buang flexbox yang bikin error */
+    text-align: center !important; /* Kunci utama rata tengah klasik */
+    padding-top: 1mm !important; /* Dorong teks sedikit agar tidak mentok atas */
     border: none !important;
     page-break-inside: avoid;
     page-break-after: always;
@@ -327,25 +325,30 @@ tbody tr:hover { background: var(--surface-sunken); }
   }
   .barcode-label .bl-name {
     font-family: Inter, sans-serif;
-    font-size: 4pt !important; /* Font dikecilkan agar tidak patah/turun ke bawah */
+    font-size: 5pt !important;
     font-weight: 700;
-    max-width: 100%;
+    display: block !important;
+    width: 100% !important;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    text-align: center;
-    line-height: 1;
+    text-align: center !important;
+    margin: 0 !important;
   }
-  .barcode-label svg { 
-    width: 85% !important; 
-    height: auto !important; 
-    margin: 0.5mm 0 !important; 
+  .barcode-label svg {
+    display: block !important;
+    width: 80% !important;
+    height: auto !important;
+    margin: 1.5px auto !important; /* Memaksa gambar barcode selalu di tengah */
   }
   .barcode-label .bl-price {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 5pt !important; /* Font dikecilkan */
+    font-size: 5pt !important;
     font-weight: 700;
-    line-height: 1;
+    display: block !important;
+    width: 100% !important;
+    text-align: center !important;
+    margin: 0 !important;
   }
 
   /* 3. RECEIPT PAPER SETUP (30mm) */
