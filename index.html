@@ -294,7 +294,6 @@ tbody tr:hover { background: var(--surface-sunken); }
   background: #ffffff;
   color: #000000;
 }
-.no-print { display: block; } /* Matikan no-print karena tidak pakai dialog bawaan lagi */
 
 /* 1. SETUP STRUK KASIR (Kertas 58mm = ~384 pixel) */
 .receipt-print {
@@ -1975,7 +1974,12 @@ function POS() {
         try { await printElementViaBluetooth('receipt-printable'); } 
         catch (e) { setToast("Gagal cetak: " + e.message); }
       }, 150);
-    } ca
+      } catch (err) { 
+      setToast(err.message ?? "Checkout failed"); 
+       } finally { 
+      setCheckingOut(false); 
+       }
+    }
 
   async function openReprint() {
     setReprintOpen((v) => !v);
