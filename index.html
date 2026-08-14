@@ -314,8 +314,9 @@ tbody tr:hover { background: var(--surface-sunken); }
 .label-sheet {
   display: flex;
   flex-direction: column;
-  width: 384px; /
+  width: 384px; 
   background: #ffffff;
+  gap: 0; /* PENTING: Hilangkan gap agar tinggi kertas tidak bertambah di luar kendali */
 }
 .barcode-label {
   width: 384px;  
@@ -324,12 +325,13 @@ tbody tr:hover { background: var(--surface-sunken); }
   display: flex;
   flex-direction: column;
   align-items: flex-start; /* Mulai dari ujung kiri mesin */
-  justify-content: center;
+  justify-content: flex-start; /* KUNCI RAHASIA: Tarik semua konten ke atas! */
   background: #ffffff;
   overflow: hidden;
   
   /* INI DIA PADDING KIRI YANG BANYAK (13.5mm x 8 dots = 108px) */
-  padding-left: 108px; 
+  padding-left: 130px; 
+  padding-top: 12px; 
 }
 .label-inner {
   width: 272px; /* Lebar fisik stikermu 34mm (34 x 8 = 272px) */
@@ -341,16 +343,16 @@ tbody tr:hover { background: var(--surface-sunken); }
 .barcode-label svg {
   /* Biarkan JSBarcode mengatur ukurannya murni dalam pixel agar tajam */
   shape-rendering: crispEdges;
-  margin: 0 !important;
+  margin: 0 0 6px 0 !important; /* Jarak aman antara barcode dan teks */
 }
 .barcode-label .bl-price {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 21px; /* Font dibesarkan agar sangat tajam di kertas */
   font-weight: 700;
-  margin-top: 6px;
   color: #000000;
   line-height: 1.1;
   text-align: center;
+  margin: 0;
 }
    
 </style>
@@ -2472,7 +2474,7 @@ function Labels() {
         {printQueue.map((p, i) => (
           <div className="barcode-label" key={p.id + "-" + i}>
             <div className="label-inner">
-               <Barcode value={p.sku} height={60} width={2} displayValue={false} margin={0} />
+               <Barcode value={p.sku} height={50} width={2} displayValue={false} margin={0} />
               <div className="bl-price">{p.sku} • {formatIDR(p.price)}</div>
             </div>
           </div>
