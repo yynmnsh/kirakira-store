@@ -286,92 +286,58 @@ tbody tr:hover { background: var(--surface-sunken); }
    predictably to small thermal/label printers.
    ----------------------------------------------------------------*/
 
-.print-only { display: none; }
+/* ---------- BLUETOOTH PRINT OFFFSCREEN RENDER ---------- */
+.print-only {
+  position: absolute;
+  left: -9999px; /* Sembunyikan dari layar, tapi tetap bisa dibaca oleh html2canvas */
+  top: 0;
+  background: #ffffff;
+  color: #000000;
+}
+.no-print { display: block; } /* Matikan no-print karena tidak pakai dialog bawaan lagi */
 
-@media print {
-  .no-print { display: none !important; }
-  .print-only { display: block !important; }
-  
-  /* 1. RESET DEFAULT BROWSER MARGIN AND PADDING */
-  html, body, #root, .app-shell, .main-content { 
-    background: #fff !important; 
-    margin: 0 !important; 
-    padding: 0 !important; 
-    height: auto !important; 
-    min-height: 0 !important;
-    max-width: none !important;
-    display: block !important; /* PENTING: Mematikan flexbox yang bikin tumpah */
-  }
+/* 1. SETUP STRUK KASIR (Kertas 58mm = ~384 pixel) */
+.receipt-print {
+  width: 384px;
+  padding: 10px;
+  box-sizing: border-box;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 20px; /* Ukuran dibesarkan untuk resolusi bitmap */
+  line-height: 1.2;
+}
+.receipt-print .r-header { text-align: center; margin-bottom: 16px; }
+.receipt-print .r-header .store-name { font-size: 28px; font-weight: 700; }
+.receipt-print .r-header .jp { font-size: 16px; margin-bottom: 4px; }
+.receipt-print hr { border: none; border-top: 2px dashed #000; margin: 12px 0; }
+.receipt-print .r-line { display: flex; justify-content: space-between; gap: 8px; }
 
-  /* 2. LABEL PAPER SETUP (Trick 58mm app scaling for 36x18mm label) */
+/* 2. SETUP LABEL BARCODE (Kertas 34x16mm = 272 x 128 pixel) */
 .label-sheet {
-    display: block !important;
-    width: 58mm !important; /* Paksa kanvas 58mm sesuai ukuran mesin */
-    margin: 0 !important;
-    padding: 0 !important;
-  }
-  .barcode-label {
-    width: 58mm !important; /* Total lebar area print head */
-    height: 18mm !important; /* Tinggi gulung per stiker + gap */
-    box-sizing: border-box !important;
-    display: block !important;
-    border: none !important;
-    page-break-inside: avoid;
-    page-break-after: always;
-    overflow: hidden;
-    margin: 0 !important;
-    
-    /* --- KUNCI UTAMANYA ADA DI SINI --- */
-    /* Dorong tinta melewati ruang kosong di sebelah kiri roll kertas */
-    padding-top: 3mm !important; 
-    padding-left: 22mm !important; /* UBAH ANGKA INI JIKA KURANG PAS KE KANAN/KIRI */
-    padding-right: 0 !important;
-  }
-  
-  .label-inner {
-    width: 34mm !important; /* Lebar area cetak di dalam stiker */
-    display: block !important;
-    text-align: center !important;
-  }
-
-  .barcode-label svg {
-    display: block !important;
-    width: auto !important;
-    height: 9mm !important;
-    margin: 0 auto 1mm auto !important;
-    shape-rendering: crispEdges !important;
-  }
-  .barcode-label .bl-price {
-    font-family: Arial, Helvetica, sans-serif !important;
-    font-size: 6.5pt !important;
-    font-weight: 700;
-    display: block !important;
-    width: 100% !important;
-    text-align: center !important;
-    margin: 0 !important;
-    line-height: 1.1 !important;
-  }
-
-  /* 3. RECEIPT PAPER SETUP (30mm) */
-  .receipt-print {
-    width: 48mm;
-    padding: 0mm !important;
-    box-sizing: border-box;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 5.5pt;
-    color: #000;
-    line-height: 1.1;
-    margin: 0 !important;
-  }
-  .receipt-print .r-header { text-align: center; margin-bottom: 1.5mm; }
-  .receipt-print .r-header .store-name { font-size: 7.5pt; font-weight: 700; margin-bottom: 1px; }
-  .receipt-print .r-header .jp,
-  .receipt-print .r-header .motto,
-  .receipt-print .r-header .address { font-size: 4.5pt; }
-  .receipt-print hr { border: none; border-top: 0.3mm dashed #000; margin: 1.5mm 0; }
-  .receipt-print .r-line { display: flex; justify-content: space-between; gap: 2px; }
-  .receipt-print .r-item-row { margin-bottom: 0.5mm; }
-}   
+  display: flex;
+  flex-direction: column;
+  gap: 30px; /* Jeda gap optik printer agar printer menggulung presisi */
+}
+.barcode-label {
+  width: 272px;  /* Presisi 34mm (8 dots/mm) */
+  height: 128px; /* Presisi 16mm */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  overflow: hidden;
+}
+.barcode-label svg {
+  width: auto;
+  height: 60px; /* Tinggi barcode ditarik maksimal */
+  shape-rendering: crispEdges; /* Anti-blur */
+}
+.barcode-label .bl-price {
+  font-family: Arial, sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  margin-top: 4px;
+}
    
 </style>
 </head>
@@ -416,6 +382,8 @@ import {
 import JsBarcode from "https://esm.sh/jsbarcode@3.11.6";
 import { Html5Qrcode, Html5QrcodeSupportedFormats } from "https://esm.sh/html5-qrcode@2.3.8";
 import * as XLSX from "https://esm.sh/xlsx@0.18.5";
+
+import html2canvas from "https://esm.sh/html2canvas@1.4.1";
 
 // ----------------------------------------------------------------------
 // FIREBASE CONFIG — edit these six values for your own Firebase project.
@@ -974,6 +942,91 @@ function Barcode({ value, height = 40, width = 1.4, fontSize = 10, displayValue 
   return <svg ref={svgRef} />;
 }
 
+// ============================================================================
+// component: Bluetooth Printer Driver (Web Bluetooth API)
+// ============================================================================
+const BLE_SERVICE = '49535343-fe7d-4ae5-8fa9-9fafd205e455';
+const BLE_CHAR = '49535343-8841-43f4-a8d4-ecbe34729bb3';
+let btDevice = null;
+let btCharacteristic = null;
+
+async function connectPrinter() {
+  if (!('bluetooth' in navigator)) throw new Error("Gunakan Chrome di Android.");
+  if (btDevice && btDevice.gatt.connected && btCharacteristic) return btCharacteristic;
+
+  btDevice = await navigator.bluetooth.requestDevice({
+    filters: [{ services: [BLE_SERVICE] }],
+    optionalServices: [BLE_SERVICE]
+  });
+
+  btDevice.addEventListener('gattserverdisconnected', () => {
+    btCharacteristic = null;
+    console.log("Printer disconnected");
+  });
+
+  const server = await btDevice.gatt.connect();
+  const service = await server.getPrimaryService(BLE_SERVICE);
+  btCharacteristic = await service.getCharacteristic(BLE_CHAR);
+  return btCharacteristic;
+}
+
+async function sendToPrinter(payload) {
+  const char = await connectPrinter();
+  const CHUNK = 100; // Kirim per-100 byte agar buffer printer tidak penuh
+  for (let i = 0; i < payload.length; i += CHUNK) {
+    const chunk = payload.slice(i, i + CHUNK);
+    if (char.properties.writeWithoutResponse) await char.writeValueWithoutResponse(chunk);
+    else await char.writeValue(chunk);
+    await new Promise(r => setTimeout(r, 20)); 
+  }
+}
+
+function generateESCPOS(canvas) {
+  const ctx = canvas.getContext('2d');
+  const width = canvas.width;
+  const height = canvas.height;
+  const imgData = ctx.getImageData(0, 0, width, height).data;
+
+  const byteWidth = Math.ceil(width / 8);
+  const data = new Uint8Array(byteWidth * height);
+
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const idx = (y * width + x) * 4;
+      const r = imgData[idx], g = imgData[idx+1], b = imgData[idx+2], a = imgData[idx+3];
+      const isBlack = a > 128 && (r + g + b) < 384; // Threshold warna hitam
+      if (isBlack) {
+        data[y * byteWidth + Math.floor(x / 8)] |= (1 << (7 - (x % 8)));
+      }
+    }
+  }
+
+  const init = new Uint8Array([0x1B, 0x40]); // Reset printer
+  const alignCenter = new Uint8Array([0x1B, 0x61, 0x01]); // Posisi rata tengah
+  const raster = new Uint8Array([0x1D, 0x76, 0x30, 0x00, byteWidth & 0xFF, (byteWidth >> 8) & 0xFF, height & 0xFF, (height >> 8) & 0xFF]);
+  const feed = new Uint8Array([0x0A, 0x0A, 0x0A, 0x0A]); // Dorong kertas
+
+  const payload = new Uint8Array(init.length + alignCenter.length + raster.length + data.length + feed.length);
+  let offset = 0;
+  payload.set(init, offset); offset += init.length;
+  payload.set(alignCenter, offset); offset += alignCenter.length;
+  payload.set(raster, offset); offset += raster.length;
+  payload.set(data, offset); offset += data.length;
+  payload.set(feed, offset);
+  
+  return payload;
+}
+
+async function printElementViaBluetooth(elementId) {
+  const el = document.getElementById(elementId);
+  if (!el) throw new Error("Format gagal dirender.");
+  const canvas = await html2canvas(el, { scale: 1, logging: false, useCORS: true });
+  const payload = generateESCPOS(canvas);
+  await sendToPrinter(payload);
+}
+   
+
+   
 // ============================================================================
 // component: BarcodeScanner (camera, html5-qrcode)
 // ============================================================================
@@ -1918,8 +1971,11 @@ function POS() {
         return line ? { ...p, stock: p.stock - line.qty } : p;
       }));
       setTimeout(() => window.print(), 150);
-    } catch (err) { setToast(err.message ?? "Checkout failed"); } finally { setCheckingOut(false); }
-  }
+      setTimeout(async () => {
+        try { await printElementViaBluetooth('receipt-printable'); } 
+        catch (e) { setToast("Gagal cetak: " + e.message); }
+      }, 150);
+    } ca
 
   async function openReprint() {
     setReprintOpen((v) => !v);
@@ -1930,8 +1986,14 @@ function POS() {
       setReprintSales(s); setReprintLoading(false);
     }
   }
-  function printReprint(sale) { setReprintSale(sale); setTimeout(() => window.print(), 150); }
-
+  function printReprint(sale) { 
+    setReprintSale(sale); 
+    setTimeout(async () => {
+      try { await printElementViaBluetooth('receipt-printable'); } 
+      catch (e) { setToast("Gagal cetak: " + e.message); }
+    }, 150); 
+  }
+     
   const suggestions = manualCode.length > 0
     ? allProducts.filter((p) => p.sku.toLowerCase().includes(manualCode.toLowerCase()) || p.name.toLowerCase().includes(manualCode.toLowerCase())).slice(0, 6)
     : [];
@@ -2116,7 +2178,10 @@ function POS() {
             <>
               <ReceiptPreview sale={lastSale} />
               <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
-                <button className="btn btn-secondary" style={{ flex: 1 }} onClick={() => window.print()}>🖨️ Print again</button>
+                <button className="btn btn-secondary" style={{ flex: 1 }} onClick={async () => {
+                  try { await printElementViaBluetooth('receipt-printable'); } 
+                  catch (e) { setToast("Gagal cetak: " + e.message); }
+                }}>🖨️ Print again</button>
                 <button className="btn btn-primary" style={{ flex: 1 }} onClick={() => setLastSale(null)}>+ New sale</button>
               </div>
             </>
@@ -2335,8 +2400,12 @@ function Labels() {
           <h2>Print Labels</h2>
           <div className="subtitle">Small barcode labels sized for item tags (36mm × 18mm by default).</div>
         </div>
-        <button className="btn btn-primary" disabled={printQueue.length === 0} onClick={() => window.print()}>
-          🖨️ Print {printQueue.length > 0 ? `(${printQueue.length} labels)` : ""}
+         <button className="btn btn-primary" disabled={printQueue.length === 0} 
+          onClick={async () => {
+            try { await printElementViaBluetooth('labels-printable'); } 
+            catch(e) { alert("Gagal cetak: " + e.message); }
+          }}>
+          🖨️ Cetak via Bluetooth {printQueue.length > 0 ? `(${printQueue.length} label)` : ""}
         </button>
       </div>
 
@@ -2380,7 +2449,7 @@ function Labels() {
         )}
       </div>
 
-     <div className="print-only label-sheet">
+     <div className="print-only label-sheet" id="labels-printable">
         {printQueue.map((p, i) => (
           <div className="barcode-label" key={p.id + "-" + i}>
             <div className="label-inner">
