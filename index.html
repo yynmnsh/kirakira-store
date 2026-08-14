@@ -997,7 +997,7 @@ async function sendToPrinter(payload) {
   }
 }
 
-function generateESCPOS(canvas) {
+function generateESCPOS(canvas, isLabel = false) {
   const ctx = canvas.getContext('2d');
   const width = canvas.width;
   const height = canvas.height;
@@ -1020,7 +1020,9 @@ function generateESCPOS(canvas) {
   const init = new Uint8Array([0x1B, 0x40]); // Reset printer
   const alignCenter = new Uint8Array([0x1B, 0x61, 0x01]); // Posisi rata tengah
   const raster = new Uint8Array([0x1D, 0x76, 0x30, 0x00, byteWidth & 0xFF, (byteWidth >> 8) & 0xFF, height & 0xFF, (height >> 8) & 0xFF]);
-  const feed = new Uint8Array([0x0A, 0x0A, 0x0A, 0x0A]); // Dorong kertas
+  
+  // KUNCI PERBAIKAN 1: Buang dorongan kertas jika yang dicetak adalah Label
+  const feed = isLabel ? new Uint8Array([]) : new Uint8Array([0x0A, 0x0A, 0x0A, 0x0A]); 
 
   const payload = new Uint8Array(init.length + alignCenter.length + raster.length + data.length + feed.length);
   let offset = 0;
@@ -1035,10 +1037,25 @@ function generateESCPOS(canvas) {
 
 async function printElementViaBluetooth(elementId) {
   const el = document.getElementById(elementId);
-  if (!el) throw new Error("Format failed to render.");
-  const canvas = await html2canvas(el, { scale: 1, logging: false, useCORS: true });
-  const payload = generateESCPOS(canvas);
-  await sendToPrinter(payload);
+  if (!el) throw new Error("Format gagal dirender.");
+  
+  if (elementId === 'labels-printable') {
+    // KUNCI PERBAIKAN 2: Mode Label (Kirim satu per satu agar memori printer tidak penuh)
+    const labels = el.querySelectorAll('.barcode-label');
+    for (let i = 0; i < labels.length; i++) {
+      const canvas = await html2canvas(labels[i], { scale: 1, logging: false, useCORS: true });
+      const payload = generateESCPOS(canvas, true); // true = Ini adalah mode label
+      await sendToPrinter(payload);
+      
+      // JEDA 1 DETIK antar label agar printer sempat bernapas & membersihkan memorinya
+      await new Promise(r => setTimeout(r, 1000));
+    }
+  } else {
+    // Mode Struk Kasir (Bisa dikirim sekaligus karena tingginya bebas)
+    const canvas = await html2canvas(el, { scale: 1, logging: false, useCORS: true });
+    const payload = generateESCPOS(canvas, false); // false = Ini mode struk kasir
+    await sendToPrinter(payload);
+  }
 }
    
 
