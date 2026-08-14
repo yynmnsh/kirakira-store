@@ -203,6 +203,11 @@ tbody tr:hover { background: var(--surface-sunken); }
 .receipt-preview .r-header { text-align: center; margin-bottom: 12px; }
 .receipt-preview .r-header .store-name { font-family: var(--font-display); font-size: 15px; font-weight: 700; }
 .receipt-preview .r-header .jp { color: var(--accent); font-size: 12px; }
+
+.receipt-preview .r-header .motto { font-size: 10px; margin-bottom: 4px; }
+.receipt-preview .r-header .address { font-size: 10px; color: var(--ink-soft); }
+.receipt-preview .r-header .phone { font-size: 10px; font-weight: 700; margin-top: 2px; }
+   
 .receipt-preview hr { border: none; border-top: 1px dashed var(--ink-faint); margin: 10px 0; }
 .receipt-preview .r-line { display: flex; justify-content: space-between; }
 .receipt-preview .r-item-row { margin-bottom: 4px; }
@@ -307,6 +312,10 @@ tbody tr:hover { background: var(--surface-sunken); }
 .receipt-print .r-header { text-align: center; margin-bottom: 16px; }
 .receipt-print .r-header .store-name { font-size: 28px; font-weight: 700; }
 .receipt-print .r-header .jp { font-size: 16px; margin-bottom: 4px; }
+.receipt-print .r-header .motto { font-size: 16px; margin-bottom: 8px; }
+.receipt-print .r-header .address { font-size: 14px; line-height: 1.3; }
+.receipt-print .r-header .phone { font-size: 15px; font-weight: 700; margin-top: 4px; }
+   
 .receipt-print hr { border: none; border-top: 2px dashed #000; margin: 12px 0; }
 .receipt-print .r-line { display: flex; justify-content: space-between; gap: 8px; }
 
@@ -321,7 +330,7 @@ tbody tr:hover { background: var(--surface-sunken); }
 .barcode-label {
   width: 384px;  
    /* Karena desainmu makin NAIK, naikkan angkanya dari 144px ke 152px atau 154px */
-  height: 152px; /* Total tinggi gulungan per stiker: 18mm (16mm stiker + 2mm gap) x 8 dots = 144px */
+  height: 154px; /* Total tinggi gulungan per stiker: 18mm (16mm stiker + 2mm gap) x 8 dots = 144px */
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -332,7 +341,7 @@ tbody tr:hover { background: var(--surface-sunken); }
   
   /* INI DIA PADDING KIRI YANG BANYAK (13.5mm x 8 dots = 108px) */
   padding-left: 126px; 
-  padding-top: 10px; 
+  padding-top: 12px; 
 }
 .label-inner {
   width: 272px; /* Lebar fisik stikermu 34mm (34 x 8 = 272px) */
@@ -1155,6 +1164,7 @@ function BarcodeScanner({ onDetect, onError }) {
 const RECEIPT_HEADER = {
   name: "Kirakira Studio", jp: "キラキラ", motto: "Pretty Things for Everyday",
   addressLines: ["Jl. Kampus Peradaban no 23", "Balun Ijuk - Bangka, Babel 33172"],
+  phone: "+62 812-7179-078",
 };
 
 function formatIDR(n) { return "Rp" + Math.round(n).toLocaleString("id-ID"); }
@@ -1166,6 +1176,7 @@ function ReceiptHeader() {
       <div className="jp">{RECEIPT_HEADER.jp}</div>
       <div className="motto">{RECEIPT_HEADER.motto}</div>
       {RECEIPT_HEADER.addressLines.map((line) => <div className="address" key={line}>{line}</div>)}
+      <div className="phone">{RECEIPT_HEADER.phone}</div>
     </div>
   );
 }
@@ -1208,7 +1219,11 @@ function ReceiptBody({ sale }) {
         </>
       )}
       <hr />
-      <div style={{ textAlign: "center", marginTop: 6 }}>Thank you for shopping with us! ✦</div>
+      <div style={{ textAlign: "center", marginTop: 10, display: "flex", flexDirection: "column", gap: 6 }}>
+        <div>Thank you for shopping with us! ✦</div>
+        <div style={{ fontSize: "0.85em" }}>Love your new items?<br/>Snap & share them with us!</div>
+        <div style={{ fontWeight: 700 }}>IG: @kirakirastudio_bangka</div>
+      </div>
     </>
   );
 }
