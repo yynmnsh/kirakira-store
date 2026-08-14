@@ -1018,7 +1018,7 @@ function generateESCPOS(canvas) {
 
 async function printElementViaBluetooth(elementId) {
   const el = document.getElementById(elementId);
-  if (!el) throw new Error("Format gagal dirender.");
+  if (!el) throw new Error("Format failed to render.");
   const canvas = await html2canvas(el, { scale: 1, logging: false, useCORS: true });
   const payload = generateESCPOS(canvas);
   await sendToPrinter(payload);
@@ -1972,7 +1972,7 @@ function POS() {
       setTimeout(() => window.print(), 150);
       setTimeout(async () => {
         try { await printElementViaBluetooth('receipt-printable'); } 
-        catch (e) { setToast("Gagal cetak: " + e.message); }
+        catch (e) { setToast("Printing failed: " + e.message); }
       }, 150);
       } catch (err) { 
       setToast(err.message ?? "Checkout failed"); 
@@ -1994,7 +1994,7 @@ function POS() {
     setReprintSale(sale); 
     setTimeout(async () => {
       try { await printElementViaBluetooth('receipt-printable'); } 
-      catch (e) { setToast("Gagal cetak: " + e.message); }
+      catch (e) { setToast("Printing failed: " + e.message); }
     }, 150); 
   }
      
@@ -2184,7 +2184,7 @@ function POS() {
               <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
                 <button className="btn btn-secondary" style={{ flex: 1 }} onClick={async () => {
                   try { await printElementViaBluetooth('receipt-printable'); } 
-                  catch (e) { setToast("Gagal cetak: " + e.message); }
+                  catch (e) { setToast("Printing failed: " + e.message); }
                 }}>🖨️ Print again</button>
                 <button className="btn btn-primary" style={{ flex: 1 }} onClick={() => setLastSale(null)}>+ New sale</button>
               </div>
@@ -2407,9 +2407,9 @@ function Labels() {
          <button className="btn btn-primary" disabled={printQueue.length === 0} 
           onClick={async () => {
             try { await printElementViaBluetooth('labels-printable'); } 
-            catch(e) { alert("Gagal cetak: " + e.message); }
+            catch(e) { alert("Printing failed: " + e.message); }
           }}>
-          🖨️ Cetak via Bluetooth {printQueue.length > 0 ? `(${printQueue.length} label)` : ""}
+          🖨️ Print {printQueue.length > 0 ? `(${printQueue.length} label)` : ""}
         </button>
       </div>
 
