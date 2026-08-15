@@ -2788,22 +2788,36 @@ function AnalyticsManager() {
   );
   const lowStock = useMemo(() => products.filter((p) => stockStatus(p) !== "ok").sort((a, b) => a.stock - b.stock), [products]);
 
-  const pl = useMemo(() => {
-    const grossSales = sales.reduce((s, sale) => s + sale.subtotal, 0);
-    const productDiscountTotal = sales.reduce((s, sale) => s + sale.productDiscountTotal, 0);
-    const transactionDiscountTotal = sales.reduce((s, sale) => s + (sale.transactionDiscount?.amount ?? 0), 0);
-    const netRevenue = sales.reduce((s, sale) => s + sale.total, 0);
-    const cogs = lines.reduce((s, l) => s + l.cost * l.qty, 0);
-    const grossProfit = netRevenue - cogs;
-    const voidedRevenue = corrections.reduce((s, c) => s + c.total, 0);
-    const voidedCogs = corrections.reduce((s, c) => s + (c.items ?? []).reduce((a, it) => a + (it.cost ?? 0) * it.qty, 0), 0);
-    const voidedProfit = voidedRevenue - voidedCogs;
-    const stockLossValue = adjustments.filter((a) => a.valuationTotal < 0).reduce((s, a) => s + Math.abs(a.valuationTotal), 0);
-    const stockGainValue = adjustments.filter((a) => a.valuationTotal > 0).reduce((s, a) => s + a.valuationTotal, 0);
-    const netRevenueAfterVoids = netRevenue - voidedRevenue;
-    const netProfit = grossProfit - voidedProfit - stockLossValue + stockGainValue;
-    return { grossSales, productDiscountTotal, transactionDiscountTotal, netRevenue, cogs, grossProfit, voidedRevenue, voidedProfit, stockLossValue, stockGainValue, netRevenueAfterVoids, netProfit };
-  }, [sales, lines, corrections, adjustments]);
+   const pl = useMemo(() => {
+       const grossSales = sales.reduce((s, sale) => s + sale.subtotal, 0);
+       const productDiscountTotal = sales.reduce((s, sale) => s + sale.productDiscountTotal, 0);
+       const transactionDiscountTotal = sales.reduce((s, sale) => s + (sale.transactionDiscount?.amount ?? 0), 0);
+       const netRevenue = sales.reduce((s, sale) => s + sale.total, 0);
+       const cogs = lines.reduce((s, l) => s + l.cost * l.qty, 0);
+       
+       const voidedRevenue = corrections.reduce((s, c) => s + c.total, 0);
+       const voidedCogs = corrections.reduce((s, c) => s + (c.items ?? []).reduce((a, it) => a + (it.cost ?? 0) * it.qty, 0), 0);
+       
+       const stockLossValue = adjustments.filter((a) => a.valuationTotal < 0).reduce((s, a) => s + Math.abs(a.valuationTotal), 0);
+       const stockGainValue = adjustments.filter((a) => a.valuationTotal > 0).reduce((s, a) => s + a.valuationTotal, 0);
+       
+       // --- Logika Baru yang Disederhanakan ---
+       const totalDiscounts = productDiscountTotal + transactionDiscountTotal;
+       const netSalesRevenue = netRevenue - voidedRevenue; // Pendapatan asli setelah dipotong void
+       const actualCogs = cogs - voidedCogs; // Modal yang dihitung hanya untuk barang yang sukses terjual
+       const netProfit = netSalesRevenue - actualCogs - stockLossValue + stockGainValue;
+   
+       return { 
+         grossSales, 
+         totalDiscounts, 
+         voidedRevenue, 
+         netSalesRevenue, 
+         actualCogs, 
+         stockLossValue, 
+         stockGainValue, 
+         netProfit 
+       };
+     }, [sales, lines, corrections, adjustments]);
 
   return (
     <div>
@@ -2831,18 +2845,14 @@ function AnalyticsManager() {
           <div className="card" style={{ marginBottom: 24 }}>
             <div className="card-title">Profit &amp; Loss</div>
             <PLTable rows={[
-              ["Gross sales (harga jual, list price)", pl.grossSales],
-              ["− Product discounts", -pl.productDiscountTotal, true],
-              ["− Transaction discounts", -pl.transactionDiscountTotal, true],
-              ["= Revenue", pl.netRevenue, false, true],
-              ["− Cost of goods sold (harga modal)", -pl.cogs, true],
-              ["= Gross profit", pl.grossProfit, false, true],
-              ["− Voided sales (revenue)", -pl.voidedRevenue, true],
-              ["− Voided profit", -pl.voidedProfit, true],
-              ["− Stock losses (damaged / lost / opname)", -pl.stockLossValue, true],
-              ["+ Stock gains (opname surplus)", pl.stockGainValue, true],
-              ["= Net revenue after voids", pl.netRevenueAfterVoids, false, true],
-              ["= Net profit", pl.netProfit, false, true],
+              ["Total Sales (before discounts)", pl.grossSales],
+              ["− Discounts Given", -pl.totalDiscounts, true],
+              ["− Cancelled / Voided Sales", -pl.voidedRevenue, true],
+              ["= Net Sales Revenue", pl.netSalesRevenue, false, true],
+              ["− Cost of Goods Sold", -pl.actualCogs, true],
+              ["− Stock Adjustments (Losses/Damage)", -pl.stockLossValue, true],
+              ["+ Stock Adjustments (Surplus)", pl.stockGainValue, true],
+              ["= Final Net Profit", pl.netProfit, false, true],
             ]} />
           </div>
 
