@@ -1670,12 +1670,12 @@ function StockAdjustmentPanel() {
 
   return (
     <div>
-      {isManager && pending.length > 0 && (
+{pending.length > 0 && (
         <div className="card" style={{ marginBottom: 24, borderColor: "var(--amber)" }}>
           <div className="card-title">⏳ Pending approval ({pending.length})</div>
           <div style={{ overflowX: "auto" }}>
           <table>
-            <thead><tr><th>Product</th><th>Reason</th><th>Qty change</th><th>Value</th><th>By</th><th></th></tr></thead>
+            <thead><tr><th>Product</th><th>Reason</th><th>Qty change</th><th>Value</th><th>By</th><th>{isManager ? "Action" : "Status"}</th></tr></thead>
             <tbody>
               {pending.map((a) => (
                 <tr key={a.id}>
@@ -1685,16 +1685,20 @@ function StockAdjustmentPanel() {
                   <td className="mono">{formatIDR(a.valuationTotal)}</td>
                   <td>{a.requestedByName}</td>
                   <td>
-                    <div style={{ display: "flex", gap: 6, justifyContent: "flex-end" }}>
-                      <button className="btn btn-primary btn-sm" onClick={() => handleApprove(a)}>Approve</button>
-                      <button className="btn btn-danger btn-sm" onClick={() => handleReject(a)}>Reject</button>
-                    </div>
+                    {isManager ? (
+                      <div style={{ display: "flex", gap: 6, justifyContent: "flex-end" }}>
+                        <button className="btn btn-primary btn-sm" onClick={() => handleApprove(a)}>Approve</button>
+                        <button className="btn btn-danger btn-sm" onClick={() => handleReject(a)}>Reject</button>
+                      </div>
+                    ) : (
+                      <div style={{ textAlign: "right" }}><span className="badge low">Waiting approval</span></div>
+                    )}
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
-         </div>     
+          </div>      
         </div>
       )}
 
@@ -1962,7 +1966,42 @@ function POS() {
   const [reprintLoading, setReprintLoading] = useState(false);
   const [reprintSearch, setReprintSearch] = useState("");
   const [reprintSale, setReprintSale] = useState(null);
+  const [shiftReminder, setShiftReminder] = useState(false);
 
+  useEffect(() => {
+    if (isManager) return; // Manager tidak perlu diganggu reminder ini
+    
+    let intervalId;
+    
+    const checkShift = async () => {
+      const nextReminderStr = sessionStorage.getItem("nextShiftReminder");
+      const now = Date.now();
+      
+      // Jika belum ada jadwal snooze, atau waktu sekarang sudah melewati batas snooze 30 menit
+      if (!nextReminderStr || now >= Number(nextReminderStr)) {
+        const openShift = await getOpenShift(user.uid);
+        if (!openShift) {
+          setShiftReminder(true);
+        } else {
+          // Jika shift ternyata sudah dibuka, hapus jadwal reminder selamanya untuk sesi ini
+          sessionStorage.removeItem("nextShiftReminder");
+        }
+      }
+    };
+
+    checkShift(); // Cek pertama kali saat halaman kasir dibuka
+    intervalId = setInterval(checkShift, 60000); // Cek ulang setiap 1 menit
+
+    return () => clearInterval(intervalId);
+  }, [user.uid, isManager]);
+
+  // Fungsi untuk menunda (snooze) popup selama 30 menit
+  function snoozeReminder() {
+    const nextTime = Date.now() + 30 * 60 * 1000; // Waktu sekarang + 30 menit (dalam milidetik)
+    sessionStorage.setItem("nextShiftReminder", nextTime.toString());
+    setShiftReminder(false);
+  }
+   
   useEffect(() => {
     listProducts().then(setAllProducts).catch(() => {});
     getSettings().then((s) => setMaxStaffDiscount(s.staffMaxDiscountPercent)).catch(() => {});
@@ -2311,6 +2350,23 @@ function POS() {
                 <button type="submit" className="btn btn-primary" disabled={approving}>{approving ? "Checking…" : "Approve"}</button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+       {/* POPUP REMINDER SHIFT */}
+      {shiftReminder && (
+        <div className="modal-overlay no-print">
+          <div className="modal" style={{ maxWidth: 420, textAlign: "center" }}>
+            <div style={{ fontSize: 40, marginBottom: 10 }}>💰</div>
+            <h3>Shift Not Opened Yet</h3>
+            <p style={{ fontSize: 14, color: "var(--ink-soft)", margin: "10px 0 24px", lineHeight: 1.4 }}>
+              It looks like you haven't opened your cash shift today. Please ensure you count and record your starting cash float before serving customers.
+            </p>
+            <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
+              <button className="btn btn-secondary" onClick={snoozeReminder}>I Understand (Remind in 30 min)</button>
+              <NavLink to="/shift" className="btn btn-primary" onClick={() => setShiftReminder(false)}>Open Shift Now</NavLink>
+            </div>
           </div>
         </div>
       )}
