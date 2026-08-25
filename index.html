@@ -1968,6 +1968,9 @@ function POS() {
   const [reprintSale, setReprintSale] = useState(null);
   const [shiftReminder, setShiftReminder] = useState(false);
 
+  const [previewSale, setPreviewSale] = useState(null);
+  const [isPrinting, setIsPrinting] = useState(false);
+
   useEffect(() => {
     if (isManager) return; // Manager tidak perlu diganggu reminder ini
     
@@ -2099,17 +2102,20 @@ function POS() {
         const line = sale.items.find((it) => it.productId === p.id);
         return line ? { ...p, stock: p.stock - line.qty } : p;
       }));
-      setTimeout(() => window.print(), 150);
-      setTimeout(async () => {
-        try { await printElementViaBluetooth('receipt-printable'); } 
-        catch (e) { setToast("Printing failed: " + e.message); }
-      }, 150);
-      } catch (err) { 
+      setAllProducts((prev) => prev.map((p) => {
+        const line = sale.items.find((it) => it.productId === p.id);
+        return line ? { ...p, stock: p.stock - line.qty } : p;
+      }));
+      
+      // Buka pop-up preview alih-alih langsung mencetak
+      setPreviewSale(sale);
+
+    } catch (err) { 
       setToast(err.message ?? "Checkout failed"); 
-       } finally { 
+    } finally { 
       setCheckingOut(false); 
-       }
     }
+  }
 
   async function openReprint() {
     setReprintOpen((v) => !v);
@@ -2120,12 +2126,9 @@ function POS() {
       setReprintSales(s); setReprintLoading(false);
     }
   }
-  function printReprint(sale) { 
-    setReprintSale(sale); 
-    setTimeout(async () => {
-      try { await printElementViaBluetooth('receipt-printable'); } 
-      catch (e) { setToast("Printing failed: " + e.message); }
-    }, 150); 
+   function printReprint(sale) { 
+    setPreviewSale(sale);
+    setReprintOpen(false); // Close the search list so the screen isn't cluttered
   }
      
   const suggestions = manualCode.length > 0
@@ -2312,10 +2315,9 @@ function POS() {
             <>
               <ReceiptPreview sale={lastSale} />
               <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
-                <button className="btn btn-secondary" style={{ flex: 1 }} onClick={async () => {
-                  try { await printElementViaBluetooth('receipt-printable'); } 
-                  catch (e) { setToast("Printing failed: " + e.message); }
-                }}>🖨️ Print again</button>
+               <button className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setPreviewSale(lastSale)}>
+                  🖨️ Print again
+                </button>
                 <button className="btn btn-primary" style={{ flex: 1 }} onClick={() => setLastSale(null)}>+ New sale</button>
               </div>
             </>
@@ -2370,6 +2372,53 @@ function POS() {
           </div>
         </div>
       )}
+
+   {/* PRINT PREVIEW MODAL */}
+      {previewSale && (
+        <div className="modal-overlay no-print" onMouseDown={(ev) => ev.target === ev.currentTarget && setPreviewSale(null)}>
+          <div className="modal" style={{ maxWidth: 400 }}>
+            <div className="modal-header">
+              <h3>Print Preview</h3>
+              <button className="icon-btn" onClick={() => setPreviewSale(null)}>✕</button>
+            </div>
+            
+            {/* The visible preview on screen */}
+            <div style={{ display: "flex", justifyContent: "center", marginBottom: 24, maxHeight: "50vh", overflowY: "auto", background: "var(--surface-sunken)", padding: "16px", borderRadius: "var(--radius-sm)" }}>
+              <ReceiptPreview sale={previewSale} />
+            </div>
+
+            {/* The hidden element that html2canvas will turn into a bitmap */}
+            <div className="receipt-print print-only" id="preview-printable">
+              <ReceiptHeader /><ReceiptBody sale={previewSale} />
+            </div>
+
+            <div style={{ display: "flex", gap: 10 }}>
+              <button className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setPreviewSale(null)}>
+                Cancel
+              </button>
+              <button 
+                className="btn btn-primary" 
+                style={{ flex: 1 }} 
+                disabled={isPrinting}
+                onClick={async () => {
+                  setIsPrinting(true);
+                  try { 
+                    await printElementViaBluetooth('preview-printable'); 
+                    setPreviewSale(null); // Close the modal upon success
+                  } catch (e) { 
+                    setToast("Print failed: " + e.message); 
+                  } finally {
+                    setIsPrinting(false);
+                  }
+                }}
+              >
+                {isPrinting ? "Printing..." : "🖨️ Print Receipt"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+   
     </div>
   );
 }
